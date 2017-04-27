@@ -9,7 +9,7 @@
         <module name="csv_handler" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel target="1.8">
+    <bytecodeTargetLevel>
       <module name="csv_handler" target="1.5" />
     </bytecodeTargetLevel>
   </component>
