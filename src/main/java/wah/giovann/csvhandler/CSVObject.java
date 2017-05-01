@@ -1,25 +1,27 @@
 package wah.giovann.csvhandler;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by giovadmin on 4/27/17.
  */
-public class CSVObject {
-    private ArrayList<String> header;
+public class CSVObject<CSVRecord> extends ArrayList<CSVRecord> {
 
     public CSVObject() {
-        
-    }
-    public CSVObject(int f) {
-        this.header = new ArrayList<String> (f);
+        super();
     }
 
-    public CSVObject(String csv) {
-
+    public CSVObject(Collection c) {
+        super(c);
     }
 
-    public CSVObject (ArrayList<String> h) {
-        this.header = h;
+    public String csvString() {
+
+        return null;
+    }
+
+    public String toString() {
+        return csvString();
     }
 }

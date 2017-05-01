@@ -2,83 +2,21 @@ package wah.giovann.csvhandler;
 
 import wah.giovann.csvhandler.exception.ValueConversionException;
 
-import java.util.*;
-import java.util.AbstractMap.SimpleEntry;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 /**
  * Created by giovadmin on 4/27/17.
  */
-public class CSVRecord<K,V> implements Map<K,V> {
-
-    private CSVObject csvObject;
+public class CSVRecord extends HashMap implements Map {
 
     private CSVRecord () {
         super();
-        this.csvObject = null;
     }
 
-    private CSVRecord (CSVRecord other) {
-
-        this.csvObject = null;
-    }
-
-    private CSVRecord (CSVObject obj, List<Entry<K,V>> entries) {
-
-    }
-
-    public V remove(Object key){
-
-        return null;
-    }
-
-    public boolean isEmpty() {
-        return false;
-    }
-
-    public Collection<V> values() {
-
-        return null;
-    }
-
-    public Set<Entry<K,V>> entrySet() {
-
-        return null;
-    }
-    public void clear(){
-
-    }
-
-    public void putAll (Map m) {
-
-    }
-
-    public Set keySet() {
-
-        return null;
-    }
-
-    public boolean containsKey(Object key){
-
-        return false;
-    }
-
-    public boolean containsValue(Object value) {
-
-        return false;
-    }
-
-    public V put(K key, V value) {
-
-        return null;
-    }
-
-    public V get(Object o){
-
-        return null;
-    }
-
-    public int size() {
-
-        return 0;
+    private CSVRecord (Map other) {
+        super(other);
     }
 
     public double getDouble(String key){
@@ -87,48 +25,88 @@ public class CSVRecord<K,V> implements Map<K,V> {
             return new Double(obj).doubleValue();
         }
         else {
-            throw new ValueConversionException("The data at field '" + key + "' could not be converted to a double.");
+            throw new ValueConversionException(ValueConversionException.DOUBLE, key, this);
         }
     }
 
-        public float getFloat(String key) {
-            String obj = (String) this.get(key);
-            if (obj != null) {
-                return new Float(obj).floatValue();
-            }
-            else {
-                throw new ValueConversionException("The data at field '" + key + "' could not be converted to a float.");
-            }
+    public float getFloat(String key) {
+        String obj = (String) this.get(key);
+        if (obj != null) {
+            return new Float(obj).floatValue();
         }
-
-        public long getLong(String key) {
-            String obj = (String) this.get(key);
-            if (obj != null) {
-                return new Long(obj).longValue();
-            }
-            else {
-                throw new ValueConversionException("The data at field '"+key+"' could not be converted to a long.");
-            }
+        else {
+            throw new ValueConversionException(ValueConversionException.FLOAT, key, this);
         }
-
-        public int getInt(String key) {
-            String obj = (String) this.get(key);
-            if (obj != null) {
-                return new Integer(obj).intValue();
-            }
-            else {
-                throw new ValueConversionException("The data at field '"+key+"' could not be converted to an int.");
-            }
-        }
-
-        public char getChar(String key) {
-            String obj = (String) this.get(key);
-            if (obj != null && obj.length() == 1) {
-                return obj.charAt(0);
-            }
-            else {
-                throw new ValueConversionException("The data at field '" + key + "' could not be converted to a char.");
-            }
     }
 
+    public long getLong(String key) {
+        String obj = (String) this.get(key);
+        if (obj != null) {
+            return new Long(obj).longValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.LONG, key, this);
+        }
+    }
+
+    public int getInt(String key) {
+        String obj = (String) this.get(key);
+        if (obj != null) {
+            return new Integer(obj).intValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.INT, key, this);
+        }
+    }
+
+    public char getChar(String key) {
+        String obj = (String) this.get(key);
+        if (obj != null && obj.length() == 1) {
+            return obj.charAt(0);
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.CHAR, key, this);
+        }
+    }
+
+    public short getShort(String key) {
+        String obj = (String) this.get(key);
+        if (obj != null && obj.length() == 1) {
+            return new Short(obj).shortValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.SHORT, key, this);
+        }
+    }
+
+    public byte getByte(String key) {
+        String obj = (String) this.get(key);
+        if (obj != null && obj.length() == 1) {
+            return new Byte(obj).byteValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.BYTE, key, this);
+        }
+    }
+
+    public boolean getBoolean(String key) {
+        String obj = (String) this.get(key);
+        if (obj != null && obj.length() == 1) {
+            return new Boolean(obj).booleanValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.BOOLEAN, key, this);
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        Iterator it = this.values().iterator();
+        while (it.hasNext()){
+            sb.append ( it.next().toString() );
+            if (it.hasNext()) sb.append(", ");a
+        }
+        return sb.toString();
+    }
 }
