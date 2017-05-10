@@ -1,18 +1,23 @@
 package wah.giovann.csvhandler;
 
+import wah.giovann.csvhandler.format.CSVFormat;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
 /**
  * Created by giovadmin on 4/27/17.
  */
-public class CSVObject<CSVRecord> extends ArrayList<CSVRecord> {
-
-    public CSVObject() {
+public class CSVArray<T extends CSVRecord> extends ArrayList {
+    /**
+     *  State pattern (to let CSVRecord know when certain operations can take place)
+     */
+    private CSVFormat format;
+    public CSVArray() {
         super();
     }
 
-    public CSVObject(Collection c) {
+    public CSVArray(Collection c) {
         super(c);
     }
 

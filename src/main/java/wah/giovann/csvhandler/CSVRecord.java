@@ -1,26 +1,70 @@
 package wah.giovann.csvhandler;
 
-import wah.giovann.csvhandler.exception.ValueConversionException;
+import wah.giovann.csvhandler.format.CSVFormat;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by giovadmin on 4/27/17.
  */
-public class CSVRecord extends HashMap implements Map {
+public class CSVRecord {
+    /**
+     *  Maybe construct a Factory or Builder?
+     *  Construct a proxy to prevent arbitray manipulation of data
+     */
+    private HashMap<String,String> data;
+    private CSVFormat format;
 
-    private CSVRecord () {
-        super();
+    private CSVRecord() {
+        this.format = CSVFormat.DEFAULT_FORMAT;
+        this.data = new HashMap<>();
     }
 
-    private CSVRecord (Map other) {
-        super(other);
+    private CSVRecord(CSVFormat f) {
+        this.format = f;
+        this.data = new HashMap<>();
+    }
+
+    private CSVRecord(HashMap d, CSVFormat f) {
+        this.format = f;
+        this.data = d;
+    }
+
+    public boolean containsField(String field){
+        if (!this.format.hasHeader()) return false;
+        return this.data.containsKey(field);
+    }
+
+    public boolean containsValue(Object value){
+        return data.containsValue(value);
+    }
+
+    public String get(String field) {
+        return data.get(field);
+    }
+
+    public int getColumns(){
+        return this.data.size();
+    }
+
+    public String getOrDefault(String field, String defaultValue){
+        return this.data.getOrDefault(field, defaultValue);
+    }
+
+    public boolean isEmpty() {
+        return data.isEmpty();
+    }
+
+    public Set<String> getFieldSet() {
+        return data.keySet();
+    }
+
+    public String put (String field, Object value) {
+        return data.put(field, value.toString());
     }
 
     public double getDouble(String key){
-        String obj = (String) this.get(key);
+        String obj = this.get(key);
         if (obj != null){
             return new Double(obj).doubleValue();
         }
@@ -30,7 +74,7 @@ public class CSVRecord extends HashMap implements Map {
     }
 
     public float getFloat(String key) {
-        String obj = (String) this.get(key);
+        String obj = this.get(key);
         if (obj != null) {
             return new Float(obj).floatValue();
         }
@@ -40,7 +84,7 @@ public class CSVRecord extends HashMap implements Map {
     }
 
     public long getLong(String key) {
-        String obj = (String) this.get(key);
+        String obj = this.get(key);
         if (obj != null) {
             return new Long(obj).longValue();
         }
@@ -50,7 +94,7 @@ public class CSVRecord extends HashMap implements Map {
     }
 
     public int getInt(String key) {
-        String obj = (String) this.get(key);
+        String obj = this.get(key);
         if (obj != null) {
             return new Integer(obj).intValue();
         }
@@ -60,7 +104,7 @@ public class CSVRecord extends HashMap implements Map {
     }
 
     public char getChar(String key) {
-        String obj = (String) this.get(key);
+        String obj = this.get(key);
         if (obj != null && obj.length() == 1) {
             return obj.charAt(0);
         }
@@ -70,7 +114,7 @@ public class CSVRecord extends HashMap implements Map {
     }
 
     public short getShort(String key) {
-        String obj = (String) this.get(key);
+        String obj = this.get(key);
         if (obj != null && obj.length() == 1) {
             return new Short(obj).shortValue();
         }
@@ -80,7 +124,7 @@ public class CSVRecord extends HashMap implements Map {
     }
 
     public byte getByte(String key) {
-        String obj = (String) this.get(key);
+        String obj = this.get(key);
         if (obj != null && obj.length() == 1) {
             return new Byte(obj).byteValue();
         }
@@ -90,7 +134,7 @@ public class CSVRecord extends HashMap implements Map {
     }
 
     public boolean getBoolean(String key) {
-        String obj = (String) this.get(key);
+        String obj = this.get(key);
         if (obj != null && obj.length() == 1) {
             return new Boolean(obj).booleanValue();
         }
@@ -101,11 +145,12 @@ public class CSVRecord extends HashMap implements Map {
 
     @Override
     public String toString() {
+        char d = this.format.getDelimiter();
+        ArrayList<String> header = this.format.getHeader();
         StringBuilder sb = new StringBuilder();
-        Iterator it = this.values().iterator();
-        while (it.hasNext()){
-            sb.append ( it.next().toString() );
-            if (it.hasNext()) sb.append(", ");a
+        for (int i = 0; i < header.size(); i++){
+            sb.append(this.get(header.get(i)));
+            if (i < header.size()-1) sb.append(d);
         }
         return sb.toString();
     }
