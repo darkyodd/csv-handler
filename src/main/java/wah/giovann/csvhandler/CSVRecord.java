@@ -11,19 +11,19 @@ public class CSVRecord {
      *  Construct a proxy to prevent arbitray manipulation of data
      */
     private HashMap<String,String> data;
-    private CSVFormat format;
+    private CSVFileFormat format;
 
     private CSVRecord() {
-        this.format = CSVFormat.DEFAULT_FORMAT;
+        this.format = CSVFileFormat.DEFAULT_FORMAT;
         this.data = new HashMap<>();
     }
 
-    private CSVRecord(CSVFormat f) {
+    private CSVRecord(CSVFileFormat f) {
         this.format = f;
         this.data = new HashMap<>();
     }
 
-    private CSVRecord(HashMap d, CSVFormat f) {
+    private CSVRecord(HashMap d, CSVFileFormat f) {
         this.format = f;
         this.data = d;
     }

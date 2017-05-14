@@ -10,15 +10,15 @@ public class CSVArray<T extends CSVRecord> extends ArrayList {
     /**
      *  State pattern (to let CSVRecord know when certain operations can take place)
      */
-    private CSVFormat format;
+    private CSVFileFormat format;
 
-    public CSVArray(CSVFormat f) {
+    public CSVArray(CSVFileFormat f) {
         super();
         this.format = f;
 
     }
 
-    public CSVArray(Collection c, CSVFormat f) {
+    public CSVArray(Collection c, CSVFileFormat f) {
         super(c);
         this.format = f;
     }

@@ -3,12 +3,9 @@ package wah.giovann.csvhandler.reader;
 import org.apache.commons.io.IOUtils;
 
 import wah.giovann.csvhandler.CSVArray;
-import wah.giovann.csvhandler.CSVFormat;
+import wah.giovann.csvhandler.CSVFileFormat;
 
 import java.io.*;
-import java.util.ArrayList;
-
-import java.lang.System.*;
 
 import org.mozilla.universalchardet.UniversalDetector;
 
@@ -17,16 +14,16 @@ import static java.lang.System.out;
 
 /**
  * Class responsible for the reading information from .csv files. Instances
- * are created using a custom wah.giovann.csvhandler.CSVFormat object or the default wah.giovann.csvhandler.CSVFormat
+ * are created using a custom wah.giovann.csvhandler.CSVFileFormat object or the default wah.giovann.csvhandler.CSVFileFormat
  * object.
  *
  * @author Giovann Wah
  * @version 1.0
  */
 public class CSVReader {
-    private CSVFormat format;
+    private CSVFileFormat format;
 
-    public CSVReader(CSVFormat ft) {
+    public CSVReader(CSVFileFormat ft) {
         this.format = ft;
     }
 
@@ -102,7 +99,7 @@ public class CSVReader {
 
     public static void main (String [] args) throws IOException {
         File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
-        CSVFormat format = CSVFormat.DEFAULT_FORMAT;
+        CSVFileFormat format = CSVFileFormat.DEFAULT_FORMAT;
         CSVReader reader = new CSVReader(format);
         CSVArray arr = reader.getCSVArray(file);
     }

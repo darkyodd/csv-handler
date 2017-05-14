@@ -1,13 +1,11 @@
 package wah.giovann.csvhandler;
 
-import java.net.StandardSocketOptions;
 import java.util.ArrayList;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 /**
  * Created by giovadmin on 4/27/17.
  */
-public class CSVFormat {
+public class CSVFileFormat {
     public static final char[] LINE_FEED_LINE_END = new char[]{'\n'};
     public static final char[] CARRIAGE_RETURN_LINE_END = new char[]{'\r'};
     public static final char[] CARRIAGE_RETURN_LINE_FEED_LINE_END = new char[]{'\r','\n'};
@@ -27,8 +25,8 @@ public class CSVFormat {
     public static final String UTF_16LE_CHARSET = StandardCharsets.UTF_16LE.name();
     public static final String UTF_8_CHARSET = StandardCharsets.UTF_8.name();
 
-    public static final CSVFormat DEFAULT_FORMAT = new CSVFormat(
-            new CSVFormat.Builder()
+    public static final CSVFileFormat DEFAULT_FORMAT = new CSVFileFormat(
+            new CSVFileFormat.Builder()
     );
     private char delimiter;
     private boolean trimSpace;
@@ -78,7 +76,7 @@ public class CSVFormat {
     }
 
 
-    private CSVFormat(Builder b){
+    private CSVFileFormat(Builder b){
         this.delimiter = b.delimiter;
         this.destinationLineEnd = b.destinationLineEnd;
         this.characterSetName = b.characterSetName;
@@ -145,8 +143,8 @@ public class CSVFormat {
         private char[] destinationLineEnd;
 
         public Builder(){
-            this.delimiter = CSVFormat.COMMA_DELIMITER;
-            this.destinationLineEnd = CSVFormat.LINE_FEED_LINE_END;
+            this.delimiter = CSVFileFormat.COMMA_DELIMITER;
+            this.destinationLineEnd = CSVFileFormat.LINE_FEED_LINE_END;
             this.characterSetName = null;
             this.hasHeader = true;
             this.destinationHeader = null;
@@ -178,8 +176,8 @@ public class CSVFormat {
             this.trimSpace = b;
             return this;
         }
-        public CSVFormat build() {
-            return new CSVFormat(this);
+        public CSVFileFormat build() {
+            return new CSVFileFormat(this);
         }
     }
 }
