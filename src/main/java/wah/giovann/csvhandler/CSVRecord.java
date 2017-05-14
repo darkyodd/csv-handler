@@ -1,7 +1,5 @@
 package wah.giovann.csvhandler;
 
-import wah.giovann.csvhandler.format.CSVFormat;
-
 import java.util.*;
 
 /**
@@ -31,7 +29,7 @@ public class CSVRecord {
     }
 
     public boolean containsField(String field){
-        if (!this.format.hasHeader()) return false;
+        if (!this.format.getHasHeader()) return false;
         return this.data.containsKey(field);
     }
 
@@ -43,12 +41,13 @@ public class CSVRecord {
         return data.get(field);
     }
 
-    public int getColumns(){
-        return this.data.size();
+    public String get(int column) {
+
+        return null;
     }
 
-    public String getOrDefault(String field, String defaultValue){
-        return this.data.getOrDefault(field, defaultValue);
+    public int getColumns(){
+        return this.data.size();
     }
 
     public boolean isEmpty() {
@@ -61,6 +60,18 @@ public class CSVRecord {
 
     public String put (String field, Object value) {
         return data.put(field, value.toString());
+    }
+
+    public void putAll(Map<String, String> m) {
+        this.data.putAll(m);
+    }
+
+    public Collection<String> getValues() {
+        return this.data.values();
+    }
+
+    public String remove(String field){
+        return this.data.remove(field);
     }
 
     public double getDouble(String key){
@@ -145,12 +156,11 @@ public class CSVRecord {
 
     @Override
     public String toString() {
-        char d = this.format.getDelimiter();
-        ArrayList<String> header = this.format.getHeader();
+        ArrayList<String> header = this.format.getDestinationHeader();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < header.size(); i++){
             sb.append(this.get(header.get(i)));
-            if (i < header.size()-1) sb.append(d);
+            if (i < header.size()-1) sb.append(this.format.getDelimiter());
         }
         return sb.toString();
     }
