@@ -6,60 +6,46 @@ import java.util.*;
  * Created by giovadmin on 4/27/17.
  */
 public class CSVRecord {
-    /**
-     *  Maybe construct a Factory or Builder?
-     *  Construct a proxy to prevent arbitray manipulation of data
-     */
-    private HashMap<String,String> data;
-    private CSVFileFormat format;
 
-    private CSVRecord() {
-        this.format = CSVFileFormat.DEFAULT_FORMAT;
-        this.data = new HashMap<>();
+    private ArrayList<String> data;
+    private CSVHeader header;
+
+    private CSVRecord(CSVHeader h) {
+        this.header = header;
+        this.data = new ArrayList<>();
     }
 
-    private CSVRecord(CSVFileFormat f) {
-        this.format = f;
-        this.data = new HashMap<>();
-    }
-
-    private CSVRecord(HashMap d, CSVFileFormat f) {
-        this.format = f;
+    private CSVRecord(CSVHeader h, ArrayList d) {
+        this.header = header;
         this.data = d;
     }
 
-    public boolean containsField(String field){
-        if (!this.format.getHasHeader()) return false;
-        return this.data.containsKey(field);
+    public boolean containsHeader(String name){
+        return this.header.contains(name);
     }
 
-    public boolean containsValue(Object value){
-        return data.containsValue(value);
+    public boolean containsValue(String value){
+        return data.contains(value);
     }
 
     public String get(String field) {
-        return data.get(field);
+        return data.get(data.indexOf(field));
     }
 
     public String get(int column) {
-
-        return null;
+        return data.get(column);
     }
 
     public int getColumns(){
-        return this.data.size();
+        return this.header.columns();
     }
 
     public boolean isEmpty() {
         return data.isEmpty();
     }
 
-    public Set<String> getFieldSet() {
-        return data.keySet();
-    }
-
     public String put (String field, Object value) {
-        return data.put(field, value.toString());
+        return data.add(field, value.toString());
     }
 
     public void putAll(Map<String, String> m) {
@@ -154,13 +140,11 @@ public class CSVRecord {
         }
     }
 
-    @Override
-    public String toString() {
-        ArrayList<String> header = this.format.getDestinationHeader();
+    public String getRecordString(char delimiter) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < header.size(); i++){
-            sb.append(this.get(header.get(i)));
-            if (i < header.size()-1) sb.append(this.format.getDelimiter());
+        for (int i = 0; i < this.orderedHeader.size(); i++){
+            sb.append(this.get(this.orderedHeader.get(i)));
+            if (i < this.orderedHeader.size()-1) sb.append(delimiter);
         }
         return sb.toString();
     }

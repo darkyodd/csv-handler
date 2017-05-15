@@ -6,6 +6,7 @@ import wah.giovann.csvhandler.CSVArray;
 import wah.giovann.csvhandler.CSVFileFormat;
 
 import java.io.*;
+import java.util.ArrayList;
 
 import org.mozilla.universalchardet.UniversalDetector;
 
@@ -53,11 +54,20 @@ public class CSVReader {
     public CSVArray getCSVArray(BufferedReader r){
         try {
             StringBuilder buffer = new StringBuilder();
+            ArrayList<String> header = new ArrayList<>();
+            int total_columns = 0;
+            int count = 0;
+            boolean headerSet = false;
             char[] arr = new char[256];
             int nread;
             while((nread = r.read(arr)) != -1) {
                 for (int i = 0; i < nread; i++){
-                    out.println(arr[i]);
+                    if (!headerSet) {
+
+                    }
+                    else {
+
+                    }
                 }
             }
         }
