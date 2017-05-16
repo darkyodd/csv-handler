@@ -8,20 +8,20 @@ import java.util.*;
 public class CSVRecord {
 
     private ArrayList<String> data;
-    private CSVHeader header;
+    private CSVHeader sharedHeader;
 
     private CSVRecord(CSVHeader h) {
-        this.header = header;
+        this.sharedHeader = sharedHeader;
         this.data = new ArrayList<>();
     }
 
     private CSVRecord(CSVHeader h, ArrayList d) {
-        this.header = header;
+        this.sharedHeader = sharedHeader;
         this.data = d;
     }
 
     public boolean containsHeader(String name){
-        return this.header.contains(name);
+        return this.sharedHeader.contains(name);
     }
 
     public boolean containsValue(String value){
@@ -37,7 +37,7 @@ public class CSVRecord {
     }
 
     public int getColumns(){
-        return this.header.columns();
+        return this.sharedHeader.columns();
     }
 
     public boolean isEmpty() {
