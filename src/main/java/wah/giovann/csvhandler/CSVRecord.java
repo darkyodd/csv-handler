@@ -11,25 +11,25 @@ public class CSVRecord {
     private CSVHeader sharedHeader;
 
     private CSVRecord(CSVHeader h) {
-        this.sharedHeader = sharedHeader;
+        this.sharedHeader = h;
         this.data = new ArrayList<>();
     }
 
     private CSVRecord(CSVHeader h, ArrayList d) {
-        this.sharedHeader = sharedHeader;
+        this.sharedHeader = h;
         this.data = d;
     }
 
     public boolean containsHeader(String name){
-        return this.sharedHeader.contains(name);
+        return this.sharedHeader.containsColumn(name);
     }
 
     public boolean containsValue(String value){
         return data.contains(value);
     }
 
-    public String get(String field) {
-        return data.get(data.indexOf(field));
+    public String get(String columnName) {
+        return data.get(sharedHeader.indexOf(columnName));
     }
 
     public String get(int column) {
@@ -37,7 +37,7 @@ public class CSVRecord {
     }
 
     public int getColumns(){
-        return this.sharedHeader.columns();
+        return this.sharedHeader.totalColumns();
     }
 
     public boolean isEmpty() {
@@ -142,9 +142,9 @@ public class CSVRecord {
 
     public String getRecordString(char delimiter) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < this.orderedHeader.size(); i++){
-            sb.append(this.get(this.orderedHeader.get(i)));
-            if (i < this.orderedHeader.size()-1) sb.append(delimiter);
+        for (int i = 0; i < this.data.size(); i++){
+            sb.append(this.get(this.data.get(i)));
+            if (i < this.data.size()-1) sb.append(delimiter);
         }
         return sb.toString();
     }
