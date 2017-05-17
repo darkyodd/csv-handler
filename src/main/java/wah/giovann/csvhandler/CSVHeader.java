@@ -1,8 +1,6 @@
 package wah.giovann.csvhandler;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by giovadmin on 5/14/17.
@@ -16,16 +14,17 @@ class CSVHeader {
         this.dummyHeader = false;
     }
 
-    public CSVHeader(ArrayList<String> h) throws Exception{
+    public CSVHeader(List<String> h) throws Exception{
         if (h != null){
-            this.columnNames = h;
+            this.columnNames = new ArrayList<>(h);
             this.dummyHeader = false;
-            if (this.hasDuplicates()) {
-                throw new Exception("The ArrayList argument cannot contain duplicate values.");
+            ArrayList<String> dupColumns = (ArrayList<String>)this.getDuplicates();
+            if (dupColumns != null) {
+                throw new CSVIntegrityException(CSVIntegrityException.DUPLICATE_CSVHEADER_COLUMNS, dupColumns);
             }
         }
         else {
-            throw new Exception("'NULL' argument cannot be passed to CSVHeader constructor.");
+            throw new CSVIntegrityException(CSVIntegrityException.NULL_CSVHEADER_ARGUMENT, null);
         }
     }
 
@@ -37,7 +36,7 @@ class CSVHeader {
                 this.columnNames.add(new String(col + ""));
             }
         }
-        else throw new Exception("The integer argument to CSVHeader must be greater than 0");
+        else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVHEADER_COLUMN_NUMBER, columns);
     }
 
     public void clearColumns() {
@@ -69,11 +68,11 @@ class CSVHeader {
         return this.columnNames.size();
     }
 
-    public String getColumn(int index){
+    public String getColumnName(int index){
         return this.columnNames.get(index);
     }
 
-    public int indexOf(String obj) {
+    public int indexOfColumn(String obj) {
         return this.columnNames.indexOf(obj);
     }
 
@@ -89,7 +88,7 @@ class CSVHeader {
         return s;
     }
 
-    public void addColumn() {
+    public void addDummyColumn() {
         if (this.dummyHeader) {
             int name = this.totalColumns();
             this.columnNames.add(name+"");
@@ -108,10 +107,32 @@ class CSVHeader {
         if (!this.dummyHeader && !this.columnNames.contains(name)) this.columnNames.set(index, name);
     }
 
-    public boolean hasDuplicates() {
+    public List<String> getColumnsList() {
+        List<String> ret = new ArrayList<>();
+        for (String s : this.columnNames){
+            ret.add(new String(s));
+        }
+        return ret;
+    }
+
+    private boolean hasDuplicates() {
         Set<String> temp = new HashSet<String>(this.columnNames);
         if (temp.size() < this.totalColumns()) return true;
         else return false;
+    }
+
+    public List<String> getDuplicates() {
+        if (this.hasDuplicates()) {
+            ArrayList<String> ret = new ArrayList<>();
+            ArrayList<String> temp = new ArrayList<>(this.columnNames);
+            Collections.sort(temp);
+            for (int i = 0; i < temp.size(); i++) {
+                if (i < temp.size()-1 && temp.get(i).equals(temp.get(i+1)) && !ret.contains(temp.get(i)) )
+                    ret.add(temp.get(i));
+            }
+            return ret;
+        }
+        else return null;
     }
 
     public String toString() {
@@ -132,7 +153,7 @@ class CSVHeader {
         else if (this.totalColumns() != h.totalColumns()) return false;
         else {
             for (int i = 0; i < this.totalColumns(); i++){
-                if (!this.getColumn(i).equals(h.getColumn(i))) return false;
+                if (!this.getColumnName(i).equals(h.getColumnName(i))) return false;
             }
         }
         return true;

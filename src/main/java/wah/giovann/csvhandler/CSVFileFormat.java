@@ -32,7 +32,6 @@ public class CSVFileFormat {
     private boolean trimSpace;
     private boolean hasHeader;
     private String characterSetName;
-    private ArrayList<String> destinationHeader;
     private char[] destinationLineEnd;
 
     public boolean getTrimSpace() { return this.trimSpace; }
@@ -68,12 +67,6 @@ public class CSVFileFormat {
     protected void setDestinationLineEnd(char[] le) {
         this.destinationLineEnd = le;
     }
-    public ArrayList<String> getDestinationHeader() {
-        return new ArrayList<>(this.destinationHeader);
-    }
-    protected void setDestinationHeader(ArrayList<String> h){
-        this.destinationHeader = new ArrayList<>(h);
-    }
 
 
     private CSVFileFormat(Builder b){
@@ -81,7 +74,6 @@ public class CSVFileFormat {
         this.destinationLineEnd = b.destinationLineEnd;
         this.characterSetName = b.characterSetName;
         this.hasHeader = b.hasHeader;
-        this.destinationHeader = b.destinationHeader;
         this.trimSpace = b.trimSpace;
     }
 
@@ -122,15 +114,6 @@ public class CSVFileFormat {
         sb.append("\n");
         sb.append("Charset Name: "+this.characterSetName+"\n");
         sb.append("Has Header: "+this.hasHeader+"\n");
-        sb.append("Destination Header: ");
-        if (this.destinationHeader == null) sb.append(this.destinationHeader);
-        else {
-            for (int i = 0; i < this.destinationHeader.size(); i++){
-                sb.append(this.destinationHeader.get(i));
-                if (i != this.destinationHeader.size()-1) sb.append(this.delimiter);
-            }
-        }
-        sb.append("\n");
         sb.append("Trim Space: "+this.trimSpace);
         return sb.toString();
     }
@@ -139,7 +122,6 @@ public class CSVFileFormat {
         private boolean trimSpace;
         private boolean hasHeader;
         private String characterSetName;
-        private ArrayList<String> destinationHeader;
         private char[] destinationLineEnd;
 
         public Builder(){
@@ -147,7 +129,6 @@ public class CSVFileFormat {
             this.destinationLineEnd = CSVFileFormat.LINE_FEED_LINE_END;
             this.characterSetName = null;
             this.hasHeader = true;
-            this.destinationHeader = null;
             this.trimSpace = true;
         }
         public Builder delimiter(char c){
@@ -164,12 +145,6 @@ public class CSVFileFormat {
         }
         public Builder hasHeader(boolean h){
             this.hasHeader = h;
-            return this;
-        }
-        public Builder destinationHeader(ArrayList b){
-            this.destinationHeader = b;
-            if (b == null || b.size() == 0) this.hasHeader = false;
-            else this.hasHeader = true;
             return this;
         }
         public Builder trimSpace(boolean b){

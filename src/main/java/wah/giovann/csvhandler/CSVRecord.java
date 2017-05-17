@@ -20,7 +20,7 @@ public class CSVRecord {
         this.data = d;
     }
 
-    public boolean containsHeader(String name){
+    public boolean containsHeaderColumn(String name){
         return this.sharedHeader.containsColumn(name);
     }
 
@@ -29,35 +29,40 @@ public class CSVRecord {
     }
 
     public String get(String columnName) {
-        return data.get(sharedHeader.indexOf(columnName));
+        return this.get(this.sharedHeader.indexOfColumn(columnName));
     }
 
     public String get(int column) {
         return data.get(column);
     }
 
-    public int getColumns(){
+    public int getTotalColumns(){
         return this.sharedHeader.totalColumns();
     }
 
     public boolean isEmpty() {
-        return data.isEmpty();
+        return this.data.isEmpty();
     }
 
-    public String put (String field, Object value) {
-        return data.add(field, value.toString());
-    }
-
-    public void putAll(Map<String, String> m) {
-        this.data.putAll(m);
+    public String add (String column, Object value) {
+        if (this.sharedHeader.containsColumn(column)) {
+            this.data.set(this.sharedHeader.indexOfColumn(column), value.toString());
+        }
+        else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, column);
+        return null;
     }
 
     public Collection<String> getValues() {
-        return this.data.values();
+        return this.data;
     }
 
-    public String remove(String field){
-        return this.data.remove(field);
+    protected String remove(int columnNum) {
+        return this.data.get(columnNum);
+    }
+
+    protected String remove(String column){
+        if (this.sharedHeader.containsColumn(column))
+            return this.data.remove(this.sharedHeader.indexOfColumn(column));
     }
 
     public double getDouble(String key){
