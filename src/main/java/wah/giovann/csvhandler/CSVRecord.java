@@ -10,14 +10,29 @@ public class CSVRecord {
     private ArrayList<String> data;
     private CSVHeader sharedHeader;
 
+    private CSVRecord() {
+        this.sharedHeader = new CSVHeader();
+        this.data = new ArrayList<>();
+    }
     private CSVRecord(CSVHeader h) {
         this.sharedHeader = h;
         this.data = new ArrayList<>();
+        for (int i = 0; i < h.totalColumns(); i++){
+            this.data.add("");
+        }
     }
 
-    private CSVRecord(CSVHeader h, ArrayList d) {
-        this.sharedHeader = h;
-        this.data = d;
+    private CSVRecord(CSVHeader h, ArrayList<String> d) {
+        if (h.totalColumns() == d.size()) {
+            this.sharedHeader = h;
+            this.data = d;
+        }
+        else {
+            List<Integer> sizes = new ArrayList<>();
+            sizes.add(h.totalColumns());
+            sizes.add(d.size());
+            throw new CSVIntegrityException(CSVIntegrityException.HEADER_AND_RECORD_DATA_INCOMPATABLE, sizes);
+        }
     }
 
     public boolean containsHeaderColumn(String name){
@@ -28,28 +43,38 @@ public class CSVRecord {
         return data.contains(value);
     }
 
-    public String get(String columnName) {
-        return this.get(this.sharedHeader.indexOfColumn(columnName));
+    public String get(String fieldName) {
+        return this.get(this.sharedHeader.indexOfColumn(fieldName));
     }
 
-    public String get(int column) {
-        return data.get(column);
+    public String get(int field) {
+        return data.get(field);
     }
 
-    public int getTotalColumns(){
-        return this.sharedHeader.totalColumns();
+    public int getTotalFields(){
+        return this.data.size();
     }
 
     public boolean isEmpty() {
-        return this.data.isEmpty();
+        if (this.data.isEmpty()) return true;
+        else {
+            for (String s : this.data){
+                if (s != null && !s.equals("")) return false;
+            }
+            return true;
+        }
     }
 
-    public String add (String column, Object value) {
-        if (this.sharedHeader.containsColumn(column)) {
-            this.data.set(this.sharedHeader.indexOfColumn(column), value.toString());
+    public void put (String field, Object value) {
+        if (this.sharedHeader.containsColumn(field)) {
+            this.data.set(this.sharedHeader.indexOfColumn(field), value.toString());
         }
-        else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, column);
-        return null;
+        else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, field);
+    }
+
+    public void put (int columnIndex, Object value) {
+        if (columnIndex < this.data.size()) this.data.set(columnIndex, value.toString());
+        else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, columnIndex);
     }
 
     public Collection<String> getValues() {
@@ -57,91 +82,105 @@ public class CSVRecord {
     }
 
     protected String remove(int columnNum) {
-        return this.data.get(columnNum);
+        return this.data.remove(columnNum);
     }
 
     protected String remove(String column){
-        if (this.sharedHeader.containsColumn(column))
-            return this.data.remove(this.sharedHeader.indexOfColumn(column));
+        if (this.sharedHeader.containsColumn(column)) return this.data.remove(this.sharedHeader.indexOfColumn(column));
+        else return null;
     }
 
-    public double getDouble(String key){
-        String obj = this.get(key);
+    public void clearAll() {
+        for (int i = 0; i < this.data.size(); i++){
+            this.put(i, "");
+        }
+    }
+
+    public void clear(int columnNum) {
+        this.put(columnNum, "");
+    }
+
+    public void clear(String column) {
+        this.put(column, "");
+    }
+
+    public double getDouble(String column){
+        String obj = this.get(column);
         if (obj != null){
             return new Double(obj).doubleValue();
         }
         else {
-            throw new ValueConversionException(ValueConversionException.DOUBLE, key, this);
+            throw new ValueConversionException(ValueConversionException.DOUBLE, column, this);
         }
     }
 
-    public float getFloat(String key) {
-        String obj = this.get(key);
+    public float getFloat(String column) {
+        String obj = this.get(column);
         if (obj != null) {
             return new Float(obj).floatValue();
         }
         else {
-            throw new ValueConversionException(ValueConversionException.FLOAT, key, this);
+            throw new ValueConversionException(ValueConversionException.FLOAT, column, this);
         }
     }
 
-    public long getLong(String key) {
-        String obj = this.get(key);
+    public long getLong(String column) {
+        String obj = this.get(column);
         if (obj != null) {
             return new Long(obj).longValue();
         }
         else {
-            throw new ValueConversionException(ValueConversionException.LONG, key, this);
+            throw new ValueConversionException(ValueConversionException.LONG, column, this);
         }
     }
 
-    public int getInt(String key) {
-        String obj = this.get(key);
+    public int getInt(String column) {
+        String obj = this.get(column);
         if (obj != null) {
             return new Integer(obj).intValue();
         }
         else {
-            throw new ValueConversionException(ValueConversionException.INT, key, this);
+            throw new ValueConversionException(ValueConversionException.INT, column, this);
         }
     }
 
-    public char getChar(String key) {
-        String obj = this.get(key);
+    public char getChar(String column) {
+        String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
             return obj.charAt(0);
         }
         else {
-            throw new ValueConversionException(ValueConversionException.CHAR, key, this);
+            throw new ValueConversionException(ValueConversionException.CHAR, column, this);
         }
     }
 
-    public short getShort(String key) {
-        String obj = this.get(key);
+    public short getShort(String column) {
+        String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
             return new Short(obj).shortValue();
         }
         else {
-            throw new ValueConversionException(ValueConversionException.SHORT, key, this);
+            throw new ValueConversionException(ValueConversionException.SHORT, column, this);
         }
     }
 
-    public byte getByte(String key) {
-        String obj = this.get(key);
+    public byte getByte(String column) {
+        String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
             return new Byte(obj).byteValue();
         }
         else {
-            throw new ValueConversionException(ValueConversionException.BYTE, key, this);
+            throw new ValueConversionException(ValueConversionException.BYTE, column, this);
         }
     }
 
-    public boolean getBoolean(String key) {
-        String obj = this.get(key);
+    public boolean getBoolean(String column) {
+        String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
             return new Boolean(obj).booleanValue();
         }
         else {
-            throw new ValueConversionException(ValueConversionException.BOOLEAN, key, this);
+            throw new ValueConversionException(ValueConversionException.BOOLEAN, column, this);
         }
     }
 

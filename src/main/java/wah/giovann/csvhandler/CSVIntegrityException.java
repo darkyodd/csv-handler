@@ -1,6 +1,8 @@
 package wah.giovann.csvhandler;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by giovadmin on 5/16/17.
@@ -10,7 +12,7 @@ public class CSVIntegrityException extends RuntimeException {
     public static final int DUPLICATE_CSVHEADER_COLUMNS = 1;
     public static final int INVALID_CSVRECORD_ADD = 2;
     public static final int INVALID_CSVHEADER_COLUMN_NUMBER = 3;
-
+    public static final int HEADER_AND_RECORD_DATA_INCOMPATABLE = 4;
     private int errorType;
     private Object relatedObject;
 
@@ -36,11 +38,24 @@ public class CSVIntegrityException extends RuntimeException {
                 sb.append(".");
                 break;
             case INVALID_CSVRECORD_ADD:
-                sb.append("Could not add data item to CSVRecord object. The header does not contain a column '"+relatedObject.toString()+"'.");
+                sb.append("Could not add data item to CSVRecord object.");
+                if (relatedObject.getClass().getName().equals("String")) {
+                    sb.append(" The header does not contain the column '"+relatedObject.toString()+"'.");
+                }
+                else if (relatedObject.getClass().getName().equals("Integer")) {
+                    sb.append(" Column index out of bounds: "+relatedObject.toString());
+                }
                 break;
             case INVALID_CSVHEADER_COLUMN_NUMBER:
                 sb.append("The argument to the CSVHeader object constructor for a dummy header must be a positive integer greater than 0. ");
                 sb.append("Value passed: "+relatedObject.toString()+".");
+                break;
+            case HEADER_AND_RECORD_DATA_INCOMPATABLE:
+                List<Integer> sizes = (List<Integer>) this.relatedObject;
+                sb.append("The header and data arguments to the CSVRecord are incompatible in size. ");
+                sb.append("Header columns: "+sizes.get(0));
+                sb.append(", ");
+                sb.append("Data size: "+sizes.get(1)+".");
                 break;
             default:
         }
