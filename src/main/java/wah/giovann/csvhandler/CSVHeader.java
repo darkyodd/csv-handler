@@ -14,7 +14,7 @@ class CSVHeader {
         this.dummyHeader = false;
     }
 
-    public CSVHeader(List<String> h) throws Exception{
+    public CSVHeader(List<String> h) throws CSVIntegrityException{
         if (h != null){
             this.columnNames = new ArrayList<>(h);
             this.dummyHeader = false;
@@ -28,7 +28,7 @@ class CSVHeader {
         }
     }
 
-    public CSVHeader(int columns) throws Exception {
+    public CSVHeader(int columns) throws CSVIntegrityException {
         if (columns > 0) {
             this.columnNames = new ArrayList<>();
             this.dummyHeader = true;
