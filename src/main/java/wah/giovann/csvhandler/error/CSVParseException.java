@@ -1,4 +1,4 @@
-package wah.giovann.csvhandler.reader;
+package wah.giovann.csvhandler.error;
 
 /**
  * Created by giovadmin on 5/11/17.

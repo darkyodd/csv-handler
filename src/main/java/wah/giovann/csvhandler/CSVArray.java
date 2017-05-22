@@ -25,6 +25,10 @@ public class CSVArray<T extends CSVRecord> extends ArrayList {
         this.header = h;
     }
 
+    public T getRecord(int index){
+        return (T)this.get(index);
+    }
+
     public String csvString() {
         StringBuilder sb = new StringBuilder();
         if (format.getHasHeader()){

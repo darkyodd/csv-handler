@@ -1,4 +1,4 @@
-package wah.giovann.csvhandler;
+package wah.giovann.csvhandler.error;
 
 import wah.giovann.csvhandler.CSVRecord;
 

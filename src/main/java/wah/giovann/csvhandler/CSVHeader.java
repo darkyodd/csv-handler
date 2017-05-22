@@ -1,5 +1,7 @@
 package wah.giovann.csvhandler;
 
+import wah.giovann.csvhandler.error.CSVIntegrityException;
+
 import java.util.*;
 
 /**
@@ -14,7 +16,7 @@ class CSVHeader {
         this.dummyHeader = false;
     }
 
-    public CSVHeader(List<String> h) throws CSVIntegrityException{
+    public CSVHeader(List<String> h) throws CSVIntegrityException {
         if (h != null){
             this.columnNames = new ArrayList<>(h);
             this.dummyHeader = false;
@@ -138,11 +140,12 @@ class CSVHeader {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Dummy Header: "+this.dummyHeader+"\n");
+        sb.append("Columns: \n");
         for (String s : this.columnNames) {
             sb.append('[');
             sb.append(s);
             sb.append(']');
-            sb.append('\n');
+            sb.append(' ');
         }
         return sb.toString();
     }

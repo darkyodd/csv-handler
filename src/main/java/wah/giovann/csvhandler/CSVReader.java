@@ -1,18 +1,15 @@
-package wah.giovann.csvhandler.reader;
+package wah.giovann.csvhandler;
 
 import org.apache.commons.io.IOUtils;
 
-import wah.giovann.csvhandler.CSVArray;
-import wah.giovann.csvhandler.CSVFileFormat;
+import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
-import org.mozilla.universalchardet.UniversalDetector;
-import wah.giovann.csvhandler.CSVRecord;
-
-import static java.lang.System.out;
+import wah.giovann.csvhandler.error.CSVParseException;
 
 
 /**
@@ -56,69 +53,103 @@ public class CSVReader {
     public CSVArray getCSVArray(BufferedReader r) throws CSVParseException {
         try {
             StringBuilder buffer = new StringBuilder();
-            ArrayList<String> h = new ArrayList<>();
-            ArrayList<CSVRecord> recs = new ArrayList<>();
-            Stack<Character> quoteStack = new Stack<>();
             int nread;
-            int total_columns = 0;
-            int count = 0;
-            boolean headerSet = false;
             char[] arr = new char[256];
-            char[] line1 = r.readLine().toCharArray();
+            String str = r.readLine();
+            char[] line1 = str.toCharArray();
             char delim = this.format.getDelimiter();
+            int line = 1;
+            //get header
+            ArrayList<String> h = new ArrayList<>();
             for (int i = 0; i < line1.length; i++) {
                 char c = line1[i];
-                if (c==delim) {
-
+                if (i == line1.length-1) {
+                    buffer.append(c);
+                    h.add(buffer.toString());
+                    buffer.setLength(0);
                 }
+                if (c==delim) {
+                    h.add(buffer.toString());
+                    buffer.setLength(0);
+                }
+                /*
                 else if (c=='"'){
                     //its either the beginning of a field, the end of a field, the beginning
                     //of an embedded quote, the end of an embedded quote, or an embedded quote.
-                    if (i < line1.length-1) {
-                        if (quoteStack.isEmpty()) { //beginning of field
+                    if (quoteStack.isEmpty()) { //beginning of field
+                        if (i != line1.length-1) {
                             quoteStack.push(c);
                         }
-                        else if (quoteStack.size() == 1) {
-                            if ((line1[i + 1] == delim || line1[i + 1] == '\r' || line1[i + 1] == '\n')) {
-                                //this is the end of a field
-                                quoteStack.pop();
-                            } else if (line1[i + 1] == '"') {
-                                //this is the beginning of an embedded quote
-                                quoteStack.push(c);
-                            }
-                        }
-                        else if (quoteStack.size() == 2) {
-                            if (line1) { //this is an embedded quote
-
-                            }
-                        }
+                        else throw new CSVParseException(0,null); //and invalid quote located at the end of the line.
                     }
                     else if (quoteStack.size() == 1) {
+                        if ((i == line1.length-1) ||
+                                (i < line1.length-1 && (line1[i + 1] == delim || line1[i + 1] == '\r' || line1[i + 1] == '\n'))) {
+                            //this is the end of a field
+                            quoteStack.pop();
+                        } else if (i < line1.length-1 &&
+                                line1[i + 1] == '"') {
+                            //this signifies the beginning of an embedded quote
+                            quoteStack.push(c);
+                        }
+                        else throw new CSVParseException(0,null); //some invalid character is after the quote.
+                    }
+                    else if (quoteStack.size() == 2) {
+                        if (line1[i-1] == '"') { //this is an embedded quote
+                            buffer.append(c);
 
+                        }
                     }
                     else {
                         //error because a "rogue" quote was encountered at the end of the line
                         throw new CSVParseException(0,null);
                     }
                 }
-                else if (c=='\n') {
-                    if (quoteStack.size() > 0) buffer.append(c);
-                    else throw new CSVParseException(0,null);
-                }
+                */
                 else {
                     buffer.append(c);
                 }
             }
+            CSVHeader header = new CSVHeader(h);
+            CSVArray<CSVRecord> ret = new CSVArray<>(this.format, header);
+            char lc;
+            ArrayList<String> d = new ArrayList<>();
+            buffer.setLength(0);
             while((nread = r.read(arr)) != -1) {
                 for (int i = 0; i < nread; i++){
-                    if (!headerSet) {
-
+                    char c = arr[i];
+                    if (i == nread-1) {
+                        lc = c;
+                    }
+                    if (c==delim) {
+                        d.add(buffer.toString());
+                        buffer.setLength(0);
+                    }
+                    else if (c=='\r') {
+                        if (i < nread-1) {
+                            if (arr[i+1] == '\n') {
+                                i++;
+                            }
+                            d.add(buffer.toString());
+                            buffer.setLength(0);
+                            CSVRecord rec = new CSVRecord(header, d);
+                            d.clear();
+                            ret.add(rec);
+                        }
+                    }
+                    else if (c=='\n') {
+                        d.add(buffer.toString());
+                        buffer.setLength(0);
+                        CSVRecord rec = new CSVRecord(header, d);
+                        d.clear();
+                        ret.add(rec);
                     }
                     else {
-
+                        buffer.append(c);
                     }
                 }
             }
+            return ret;
         }
         catch (IOException e){
             e.printStackTrace();
@@ -163,11 +194,24 @@ public class CSVReader {
         }
     }
 
+    private void printList(List l){
+        for (Object o : l){
+            System.out.print(o.toString());
+            System.out.print(" ");
+        }
+        System.out.println();
+    }
     public static void main (String [] args) throws IOException {
-        File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
+        File file = new File(ClassLoader.getSystemClassLoader().getResource("finalTestRefactoredETA.csv").getFile());
         CSVFileFormat format = CSVFileFormat.DEFAULT_FORMAT;
         CSVReader reader = new CSVReader(format);
-        CSVArray arr = reader.getCSVArray(file);
+        try {
+            CSVArray<CSVRecord> arr = reader.getCSVArray(file);
+            System.out.println(arr.toString());
+        }
+        catch(Exception e){
+            e.printStackTrace();
+        }
     }
 
 }

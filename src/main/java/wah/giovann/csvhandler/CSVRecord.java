@@ -1,5 +1,8 @@
 package wah.giovann.csvhandler;
 
+import wah.giovann.csvhandler.error.CSVIntegrityException;
+import wah.giovann.csvhandler.error.ValueConversionException;
+
 import java.util.*;
 
 /**
@@ -10,11 +13,11 @@ public class CSVRecord {
     private ArrayList<String> data;
     private CSVHeader sharedHeader;
 
-    private CSVRecord() {
+    public CSVRecord() {
         this.sharedHeader = new CSVHeader();
         this.data = new ArrayList<>();
     }
-    private CSVRecord(CSVHeader h) {
+    public CSVRecord(CSVHeader h) {
         this.sharedHeader = h;
         this.data = new ArrayList<>();
         for (int i = 0; i < h.totalColumns(); i++){
@@ -22,16 +25,16 @@ public class CSVRecord {
         }
     }
 
-    private CSVRecord(CSVHeader h, ArrayList<String> d) {
+    public CSVRecord(CSVHeader h, ArrayList<String> d) {
         if (h.totalColumns() == d.size()) {
             this.sharedHeader = h;
-            this.data = d;
+            this.data = new ArrayList(d);
         }
         else {
-            List<Integer> sizes = new ArrayList<>();
-            sizes.add(h.totalColumns());
-            sizes.add(d.size());
-            throw new CSVIntegrityException(CSVIntegrityException.HEADER_AND_RECORD_DATA_INCOMPATABLE, sizes);
+            List<Object> headerAndData = new ArrayList<>();
+            headerAndData.add(h.getColumnsList());
+            headerAndData.add(d);
+            throw new CSVIntegrityException(CSVIntegrityException.HEADER_AND_RECORD_DATA_INCOMPATABLE, headerAndData);
         }
     }
 
@@ -187,7 +190,7 @@ public class CSVRecord {
     public String getRecordString(char delimiter) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.data.size(); i++){
-            sb.append(this.get(this.data.get(i)));
+            sb.append(this.data.get(i));
             if (i < this.data.size()-1) sb.append(delimiter);
         }
         return sb.toString();

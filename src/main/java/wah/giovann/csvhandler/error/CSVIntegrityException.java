@@ -1,4 +1,4 @@
-package wah.giovann.csvhandler;
+package wah.giovann.csvhandler.error;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,11 +51,22 @@ public class CSVIntegrityException extends RuntimeException {
                 sb.append("Value passed: "+relatedObject.toString()+".");
                 break;
             case HEADER_AND_RECORD_DATA_INCOMPATABLE:
-                List<Integer> sizes = (List<Integer>) this.relatedObject;
+                List<Object> objs = (List<Object>) this.relatedObject;
+                ArrayList<String> header = (ArrayList<String>) objs.get(0);
+                ArrayList<String> data =  (ArrayList<String>) objs.get(1);
+
                 sb.append("The header and data arguments to the CSVRecord are incompatible in size. ");
-                sb.append("Header columns: "+sizes.get(0));
+                sb.append("Header columns: "+ header.size());
                 sb.append(", ");
-                sb.append("Data size: "+sizes.get(1)+".");
+                sb.append("Data size: "+data.size()+".\n");
+                sb.append("Header: ");
+                for (String s : header){
+                    sb.append("["+s+"] ");
+                }
+                sb.append("\nData: ");
+                for (String s : data) {
+                    sb.append("["+s+"] ");
+                }
                 break;
             default:
         }
