@@ -28,8 +28,16 @@ public class CSVReader {
     }
 
     public CSVArray getCSVArray(File file) throws CSVParseException {
-        try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file)) ){
-            String charSet = getBestCharsetName(bis);
+        try(FileInputStream fis = new FileInputStream(file)) {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int nread;
+            byte [] bytes = new byte[256];
+            while ((nread = fis.read(bytes)) != -1) {
+                baos.write(bytes,0,nread);
+            }
+            ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
+            String charSet = getBestCharsetName(bais);
+            BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(baos.toByteArray()));
             BufferedReader reader = new BufferedReader(new InputStreamReader(bis, charSet));
             return this.getCSVArray(reader);
         }
@@ -53,8 +61,6 @@ public class CSVReader {
     public CSVArray getCSVArray(BufferedReader r) throws CSVParseException {
         try {
             StringBuilder buffer = new StringBuilder();
-            int nread;
-            char[] arr = new char[256];
             String str = r.readLine();
             char[] line1 = str.toCharArray();
             char delim = this.format.getDelimiter();
@@ -173,7 +179,6 @@ public class CSVReader {
             if (is != null) {
                 UniversalDetector ud = new UniversalDetector(null);
                 try {
-                    if (is.markSupported()) is.mark(4097);
                     byte[] buff = new byte[4096];
                     int nread;
                     while ((nread = is.read(buff)) > 0 && !ud.isDone()) {
@@ -181,7 +186,6 @@ public class CSVReader {
                     }
                     ud.dataEnd();
                     ret = ud.getDetectedCharset();
-                    if (is.markSupported()) is.reset();
                 } catch (IOException ie) {
                     ie.printStackTrace();
                 } finally {
@@ -201,13 +205,17 @@ public class CSVReader {
         }
         System.out.println();
     }
+
     public static void main (String [] args) throws IOException {
-        File file = new File(ClassLoader.getSystemClassLoader().getResource("finalTestRefactoredETA.csv").getFile());
+        File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
         CSVFileFormat format = CSVFileFormat.DEFAULT_FORMAT;
         CSVReader reader = new CSVReader(format);
         try {
+            long start = System.currentTimeMillis();
             CSVArray<CSVRecord> arr = reader.getCSVArray(file);
-            System.out.println(arr.toString());
+            long end = System.currentTimeMillis();
+            double time = (new Double(end) - new Double(start))/1000;
+            System.out.println(time);
         }
         catch(Exception e){
             e.printStackTrace();
