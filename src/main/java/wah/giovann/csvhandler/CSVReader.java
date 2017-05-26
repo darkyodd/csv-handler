@@ -61,94 +61,108 @@ public class CSVReader {
     public CSVArray getCSVArray(BufferedReader r) throws CSVParseException {
         try {
             StringBuilder buffer = new StringBuilder();
-            String str = r.readLine();
-            char[] line1 = str.toCharArray();
+            char[] line1 = r.readLine().toCharArray();
             char delim = this.format.getDelimiter();
-            int line = 1;
-            //get header
+            char c;
+            char lc = '\0';
+            int lineNum = 1;
+            int columns = 1;
+            int qCount = 0; //quote count
+            int eqCount = 0; //embedded quote count
+            ArrayList<String> d = new ArrayList<>();
             ArrayList<String> h = new ArrayList<>();
             for (int i = 0; i < line1.length; i++) {
-                char c = line1[i];
-                if (i == line1.length-1) {
+                c = line1[i];
+                if (i == line1.length-1) { //end of line
                     buffer.append(c);
-                    h.add(buffer.toString());
+                    if (this.format.getHasHeader()) h.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
+                    else d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
                     buffer.setLength(0);
+                    lineNum++;
                 }
-                if (c==delim) {
-                    h.add(buffer.toString());
-                    buffer.setLength(0);
-                }
-                /*
-                else if (c=='"'){
-                    //its either the beginning of a field, the end of a field, the beginning
-                    //of an embedded quote, the end of an embedded quote, or an embedded quote.
-                    if (quoteStack.isEmpty()) { //beginning of field
-                        if (i != line1.length-1) {
-                            quoteStack.push(c);
-                        }
-                        else throw new CSVParseException(0,null); //and invalid quote located at the end of the line.
+                else if (c =='"') {
+                    if (qCount == 0 && i != line1.length-1 && (i == 0 || line1[i-1] == delim)) { //this is definitely an opening field quote
+                        qCount++;
                     }
-                    else if (quoteStack.size() == 1) {
-                        if ((i == line1.length-1) ||
-                                (i < line1.length-1 && (line1[i + 1] == delim || line1[i + 1] == '\r' || line1[i + 1] == '\n'))) {
-                            //this is the end of a field
-                            quoteStack.pop();
-                        } else if (i < line1.length-1 &&
-                                line1[i + 1] == '"') {
-                            //this signifies the beginning of an embedded quote
-                            quoteStack.push(c);
-                        }
-                        else throw new CSVParseException(0,null); //some invalid character is after the quote.
+                    else if (qCount == 1 && i != 0 && (i==line1.length-1 || line1[i+1]==delim || line1[i+1]=='\r' || line1[i+1]=='\n')) { //this is definitely a closing field quote
+                        qCount--;
                     }
-                    else if (quoteStack.size() == 2) {
-                        if (line1[i-1] == '"') { //this is an embedded quote
-                            buffer.append(c);
+                    else if (qCount == 1 && i != 0 && i != line1.length-1 &&(line1[i+1]=='"')) { //a double quote
+                        qCount++;
+                    }
 
-                        }
-                    }
                     else {
-                        //error because a "rogue" quote was encountered at the end of the line
-                        throw new CSVParseException(0,null);
+
                     }
                 }
-                */
+                else if (c==delim) {
+                    if (this.format.getHasHeader()) h.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
+                    else {
+                        d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
+                        columns++;
+                    }
+                    buffer.setLength(0);
+                }
                 else {
                     buffer.append(c);
                 }
             }
-            CSVHeader header = new CSVHeader(h);
+            CSVHeader header;
+            if (this.format.getHasHeader()) header = new CSVHeader(h);
+            else {
+                header = new CSVHeader(columns); //dummy header
+            }
+            //csv record to return
             CSVArray<CSVRecord> ret = new CSVArray<>(this.format, header);
-            char lc;
-            ArrayList<String> d = new ArrayList<>();
+            if (!this.format.getHasHeader()) { //add first line to array
+                CSVRecord rec = new CSVRecord(header, d);
+                d.clear();
+                ret.add(rec);
+            }
+            int nread;
+            char[] arr = new char[256];
             buffer.setLength(0);
             while((nread = r.read(arr)) != -1) {
                 for (int i = 0; i < nread; i++){
-                    char c = arr[i];
+                    c = arr[i];
                     if (i == nread-1) {
                         lc = c;
                     }
                     if (c==delim) {
-                        d.add(buffer.toString());
+                        d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
                         buffer.setLength(0);
                     }
+                    else if (c =='"') {
+                        if (qCount == 0 && i != nread-1) {
+                            qCount++;
+                        }
+                        else if (qCount == 1 && i != 0) {
+                            qCount--;
+                        }
+                    }
                     else if (c=='\r') {
-                        if (i < nread-1) {
+                        if (i < nread-1) { //if the carriage return isn't the last character in the char buffer...
                             if (arr[i+1] == '\n') {
                                 i++;
                             }
-                            d.add(buffer.toString());
+                            d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
                             buffer.setLength(0);
                             CSVRecord rec = new CSVRecord(header, d);
                             d.clear();
                             ret.add(rec);
+                            lineNum++;
                         }
                     }
                     else if (c=='\n') {
-                        d.add(buffer.toString());
+                        if (lc == '\r') { //new line
+
+                        }
+                        d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
                         buffer.setLength(0);
                         CSVRecord rec = new CSVRecord(header, d);
                         d.clear();
                         ret.add(rec);
+                        lineNum++;
                     }
                     else {
                         buffer.append(c);
@@ -207,15 +221,23 @@ public class CSVReader {
     }
 
     public static void main (String [] args) throws IOException {
-        File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
-        CSVFileFormat format = CSVFileFormat.DEFAULT_FORMAT;
+        File file = new File(ClassLoader.getSystemClassLoader().getResource("Test.csv").getFile());
+        CSVFileFormat format = new CSVFileFormat.Builder()
+                .delimiter(CSVFileFormat.SEMICOLON_DELIMITER)
+                .hasHeader(true)
+                .trimSpace(true)
+                .build();
+    //    CSVFileFormat format = CSVFileFormat.DEFAULT_FORMAT;
         CSVReader reader = new CSVReader(format);
         try {
             long start = System.currentTimeMillis();
             CSVArray<CSVRecord> arr = reader.getCSVArray(file);
             long end = System.currentTimeMillis();
             double time = (new Double(end) - new Double(start))/1000;
-            System.out.println(time);
+            System.out.print(arr);
+            System.out.println();
+            System.out.println(arr.getHeaderString());
+            System.out.println(arr.getRecord(0).get(3));
         }
         catch(Exception e){
             e.printStackTrace();

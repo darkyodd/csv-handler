@@ -7,10 +7,12 @@ public class CSVParseException extends Exception {
 
     int errorType;
     Object relatedObject;
+    int line;
 
-    public CSVParseException(int e, Object o) {
+    public CSVParseException(int e, Object o, int l) {
         this.errorType = e;
         this.relatedObject = o;
+        this.line = l;
     }
 
     public String getMessage() {

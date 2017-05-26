@@ -71,6 +71,7 @@ class CSVHeader {
     }
 
     public String getColumnName(int index){
+        if (this.dummyHeader) return "DUMMY HEADER: "+this.columnNames.get(index);
         return this.columnNames.get(index);
     }
 
@@ -139,8 +140,8 @@ class CSVHeader {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Dummy Header: "+this.dummyHeader+"\n");
-        sb.append("Columns: \n");
+        sb.append("DUMMY HEADER? "+this.dummyHeader+"\n");
+        sb.append("COLUMNS: \n");
         for (String s : this.columnNames) {
             sb.append('[');
             sb.append(s);

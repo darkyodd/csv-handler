@@ -46,12 +46,19 @@ public class CSVRecord {
         return data.contains(value);
     }
 
-    public String get(String fieldName) {
-        return this.get(this.sharedHeader.indexOfColumn(fieldName));
+    public String get(String columnName) {
+        if (!this.sharedHeader.containsColumn(columnName)) {
+            throw new ArrayIndexOutOfBoundsException("No column named \""+columnName+"\" exists in this CSVRecord.");
+        }
+        return this.get(this.sharedHeader.indexOfColumn(columnName));
     }
 
-    public String get(int field) {
-        return data.get(field);
+    public String get(int column) {
+        return data.get(column);
+    }
+
+    public String getHeaderColumnName(int index) {
+        return this.sharedHeader.getColumnName(index);
     }
 
     public int getTotalFields(){
@@ -91,6 +98,10 @@ public class CSVRecord {
     protected String remove(String column){
         if (this.sharedHeader.containsColumn(column)) return this.data.remove(this.sharedHeader.indexOfColumn(column));
         else return null;
+    }
+
+    public String getHeaderString() {
+        return this.sharedHeader.toString();
     }
 
     public void clearAll() {

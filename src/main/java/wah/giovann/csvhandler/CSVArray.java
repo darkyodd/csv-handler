@@ -29,6 +29,13 @@ public class CSVArray<T extends CSVRecord> extends ArrayList {
         return (T)this.get(index);
     }
 
+    public String getHeaderColumnName(int index) {
+        return this.header.getColumnName(index);
+    }
+
+    public String getHeaderString() {
+        return this.header.toString();
+    }
     public String csvString() {
         StringBuilder sb = new StringBuilder();
         if (format.getHasHeader()){
