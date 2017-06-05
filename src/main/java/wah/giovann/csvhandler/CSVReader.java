@@ -21,6 +21,7 @@ import wah.giovann.csvhandler.error.CSVParseException;
  * @version 1.0
  */
 public class CSVReader {
+    private final int bufSize = 256;
     private CSVFileFormat format;
 
     public CSVReader(CSVFileFormat ft) {
@@ -31,7 +32,7 @@ public class CSVReader {
         try(FileInputStream fis = new FileInputStream(file)) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             int nread;
-            byte [] bytes = new byte[256];
+            byte [] bytes = new byte[bufSize];
             while ((nread = fis.read(bytes)) != -1) {
                 baos.write(bytes,0,nread);
             }
@@ -60,112 +61,107 @@ public class CSVReader {
 
     public CSVArray getCSVArray(BufferedReader r) throws CSVParseException {
         try {
-            StringBuilder buffer = new StringBuilder();
-            char[] line1 = r.readLine().toCharArray();
+            CSVArray<CSVRecord> ret = null;
+            CSVHeader header = null;
+            StringBuilder mainBuffer = new StringBuilder();
+            StringBuilder spaceBuffer = new StringBuilder();
             char delim = this.format.getDelimiter();
-            char c;
             char lc = '\0';
-            int lineNum = 1;
+            int lineNum = 0;
             int columns = 1;
             int qCount = 0; //quote count
-            int eqCount = 0; //embedded quote count
+            boolean headerSet = false;
+            boolean quotedFieldFinished = false;
+
             ArrayList<String> d = new ArrayList<>();
-            ArrayList<String> h = new ArrayList<>();
-            for (int i = 0; i < line1.length; i++) {
-                c = line1[i];
-                if (i == line1.length-1) { //end of line
-                    buffer.append(c);
-                    if (this.format.getHasHeader()) h.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
-                    else d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
-                    buffer.setLength(0);
-                    lineNum++;
-                }
-                else if (c =='"') {
-                    if (qCount == 0 && i != line1.length-1 && (i == 0 || line1[i-1] == delim)) { //this is definitely an opening field quote
-                        qCount++;
-                    }
-                    else if (qCount == 1 && i != 0 && (i==line1.length-1 || line1[i+1]==delim || line1[i+1]=='\r' || line1[i+1]=='\n')) { //this is definitely a closing field quote
-                        qCount--;
-                    }
-                    else if (qCount == 1 && i != 0 && i != line1.length-1 &&(line1[i+1]=='"')) { //a double quote
-                        qCount++;
-                    }
-
-                    else {
-
-                    }
-                }
-                else if (c==delim) {
-                    if (this.format.getHasHeader()) h.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
-                    else {
-                        d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
-                        columns++;
-                    }
-                    buffer.setLength(0);
-                }
-                else {
-                    buffer.append(c);
-                }
-            }
-            CSVHeader header;
-            if (this.format.getHasHeader()) header = new CSVHeader(h);
-            else {
-                header = new CSVHeader(columns); //dummy header
-            }
-            //csv record to return
-            CSVArray<CSVRecord> ret = new CSVArray<>(this.format, header);
-            if (!this.format.getHasHeader()) { //add first line to array
-                CSVRecord rec = new CSVRecord(header, d);
-                d.clear();
-                ret.add(rec);
-            }
-            int nread;
-            char[] arr = new char[256];
-            buffer.setLength(0);
-            while((nread = r.read(arr)) != -1) {
-                for (int i = 0; i < nread; i++){
-                    c = arr[i];
-                    if (i == nread-1) {
-                        lc = c;
-                    }
-                    if (c==delim) {
-                        d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
-                        buffer.setLength(0);
-                    }
-                    else if (c =='"') {
-                        if (qCount == 0 && i != nread-1) {
-                            qCount++;
-                        }
-                        else if (qCount == 1 && i != 0) {
-                            qCount--;
-                        }
-                    }
-                    else if (c=='\r') {
-                        if (i < nread-1) { //if the carriage return isn't the last character in the char buffer...
-                            if (arr[i+1] == '\n') {
-                                i++;
+            String line;
+            while((line = r.readLine()) != null) {
+                lineNum++;
+                char[] ca = line.toCharArray();
+                for (int i = 0; i < ca.length; i++) {
+                    char c = ca[i];
+                    if (c == ' ' || c == '\t') {
+                        spaceBuffer.append(c);
+                    } else { //handle leading and trailing spaces that occur around quoted fields
+                        if (spaceBuffer.length() != 0) {
+                            if (!quotedFieldFinished && !(lc == delim && c == '"') && !(lc == '"' && c == delim)) {
+                                mainBuffer.append(spaceBuffer);
+                                spaceBuffer.setLength(0);
                             }
-                            d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
-                            buffer.setLength(0);
-                            CSVRecord rec = new CSVRecord(header, d);
-                            d.clear();
-                            ret.add(rec);
-                            lineNum++;
+                            else if ((lc == delim && c == '"')){
+                                spaceBuffer.setLength(0);
+                            }
                         }
                     }
-                    else if (c=='\n') {
-                        if (lc == '\r') { //new line
 
+                    if (c == '"') {
+                        if (qCount == 0 && !quotedFieldFinished && i != ca.length - 1 && (i == 0 || ca[i - 1] == delim || lc == delim)) { //this is definitely an opening field quote
+
+                            qCount++;
+                        } else if (qCount == 1 && !quotedFieldFinished && i != 0 && (i == ca.length - 1 || ca[i + 1] == delim || ca[i + 1] != '"')) { //this is definitely a closing field quote
+                            qCount--;
+                            quotedFieldFinished = true;
+                        } else if (qCount == 1 && !quotedFieldFinished && i != 0 && i != ca.length - 1 && (ca[i + 1] == '"')) { //a double quote
+                            i++;
+                            mainBuffer.append(c);
+                        } else {
+                            //error
+                            mainBuffer.append(c);
+                            throw new CSVParseException(CSVParseException.UNEXPECTED_QUOTE, mainBuffer.toString(), lineNum);
                         }
-                        d.add(this.format.getTrimSpace()?buffer.toString().trim():buffer.toString());
-                        buffer.setLength(0);
-                        CSVRecord rec = new CSVRecord(header, d);
-                        d.clear();
-                        ret.add(rec);
-                        lineNum++;
+                    } else if (c == delim) {
+                        if (qCount == 0) {
+                            d.add(this.format.getTrimSpace() ? mainBuffer.toString().trim() : mainBuffer.toString());
+                            if (!this.format.getHasHeader() && !headerSet) {
+                                columns++;
+                            }
+                            quotedFieldFinished = false;
+                            spaceBuffer.setLength(0);
+                            mainBuffer.setLength(0);
+                        }
+                        else {
+                            mainBuffer.append(c);
+                            throw new CSVParseException(CSVParseException.MISSING_CLOSING_QUOTE, mainBuffer.toString(), lineNum);
+                        }
+                    } else {
+                        if (!quotedFieldFinished && c != ' ' && c != '\t') {
+                            mainBuffer.append(c);
+                        }
+                        else if (quotedFieldFinished && c != ' ' && c != '\t'){
+                            mainBuffer.append(c);
+                            throw new CSVParseException(CSVParseException.UNEXPECTED_TOKEN, mainBuffer.toString(), lineNum);
+                        }
                     }
-                    else {
-                        buffer.append(c);
+                    if (i == ca.length - 1) { //end of line
+                        if (qCount == 0) {
+                            d.add(this.format.getTrimSpace() ? mainBuffer.toString().trim() : mainBuffer.toString());
+                            quotedFieldFinished = false;
+                            spaceBuffer.setLength(0);
+                            if (!headerSet) { //add header
+                                if (!this.format.getHasHeader()) {
+                                    columns++;
+                                }
+                                if (this.format.getHasHeader()) header = new CSVHeader(d);
+                                else {
+                                    header = new CSVHeader(columns); //dummy header
+                                }
+                                ret = new CSVArray<>(this.format, header);
+                                d.clear();
+                                headerSet = true;
+                            } else { //add new record
+                                CSVRecord rec = new CSVRecord(header, d);
+                                d.clear();
+                                ret.add(rec);
+                            }
+                        }
+                        else {
+                            mainBuffer.append(c);
+                            throw new CSVParseException(CSVParseException.MISSING_CLOSING_QUOTE, mainBuffer.toString(), lineNum);
+                        }
+                        mainBuffer.setLength(0);
+                    }
+                    if (c != ' ' && c != '\t') {
+                        lc = c;
                     }
                 }
             }
@@ -225,7 +221,7 @@ public class CSVReader {
         CSVFileFormat format = new CSVFileFormat.Builder()
                 .delimiter(CSVFileFormat.SEMICOLON_DELIMITER)
                 .hasHeader(true)
-                .trimSpace(true)
+                .trimSpace(false)
                 .build();
     //    CSVFileFormat format = CSVFileFormat.DEFAULT_FORMAT;
         CSVReader reader = new CSVReader(format);
@@ -234,14 +230,13 @@ public class CSVReader {
             CSVArray<CSVRecord> arr = reader.getCSVArray(file);
             long end = System.currentTimeMillis();
             double time = (new Double(end) - new Double(start))/1000;
-            System.out.print(arr);
-            System.out.println();
-            System.out.println(arr.getHeaderString());
-            System.out.println(arr.getRecord(0).get(3));
+            System.out.println(arr);
+            for (Object r : arr) {
+                System.out.println("'" + ((CSVRecord)r).get("Letter") + "'");
+            }
         }
         catch(Exception e){
             e.printStackTrace();
         }
     }
-
 }

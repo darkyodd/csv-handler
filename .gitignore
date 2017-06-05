@@ -1,0 +1,9 @@
+#### ignore all .iml files
+*.iml
+**/*.iml
+
+#### ignore target folder
+target/
+
+#### ignore .idea folder
+.idea/
