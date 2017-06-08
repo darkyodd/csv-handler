@@ -1,4 +1,4 @@
-Number;An example sentence ;Letter
-78;     "test"          ;A
-7;  "This ""is"" just a ""test"""              ;Y
-100;"hello there my name is Giovann Wah";"X"
+Number,An example sentence ,Letter
+78,     "test"          ,A
+7,  "This ""is"" just a ""test"""              ,Y
+100,"hello there my name is Giovann Wah","X"

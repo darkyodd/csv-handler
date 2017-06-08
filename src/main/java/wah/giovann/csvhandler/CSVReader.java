@@ -1,15 +1,12 @@
 package wah.giovann.csvhandler;
 
 import org.apache.commons.io.IOUtils;
-
 import org.mozilla.universalchardet.UniversalDetector;
+import wah.giovann.csvhandler.error.CSVParseException;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
-
-import wah.giovann.csvhandler.error.CSVParseException;
 
 
 /**
@@ -138,14 +135,15 @@ public class CSVReader {
                             quotedFieldFinished = false;
                             spaceBuffer.setLength(0);
                             if (!headerSet) { //add header
-                                if (!this.format.getHasHeader()) {
-                                    columns++;
-                                }
                                 if (this.format.getHasHeader()) header = new CSVHeader(d);
                                 else {
                                     header = new CSVHeader(columns); //dummy header
                                 }
                                 ret = new CSVArray<>(this.format, header);
+                                if (!this.format.getHasHeader()) {
+                                    CSVRecord rec = new CSVRecord(header, d);
+                                    ret.add(rec);
+                                }
                                 d.clear();
                                 headerSet = true;
                             } else { //add new record
@@ -219,9 +217,10 @@ public class CSVReader {
     public static void main (String [] args) throws IOException {
         File file = new File(ClassLoader.getSystemClassLoader().getResource("Test.csv").getFile());
         CSVFileFormat format = new CSVFileFormat.Builder()
-                .delimiter(CSVFileFormat.SEMICOLON_DELIMITER)
-                .hasHeader(true)
-                .trimSpace(false)
+                .delimiter(CSVFileFormat.COMMA_DELIMITER)
+                .hasHeader(false)
+                .trimSpace(true)
+                .outputFileLineEnd(CSVFileFormat.LINE_FEED_LINE_END)
                 .build();
     //    CSVFileFormat format = CSVFileFormat.DEFAULT_FORMAT;
         CSVReader reader = new CSVReader(format);
@@ -232,7 +231,7 @@ public class CSVReader {
             double time = (new Double(end) - new Double(start))/1000;
             System.out.println(arr);
             for (Object r : arr) {
-                System.out.println("'" + ((CSVRecord)r).get("Letter") + "'");
+                System.out.println("'" + ((CSVRecord)r) + "'");
             }
         }
         catch(Exception e){

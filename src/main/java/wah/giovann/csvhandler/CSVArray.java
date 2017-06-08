@@ -43,7 +43,7 @@ public class CSVArray<T extends CSVRecord> extends ArrayList {
                 sb.append(header.getColumnName(i));
                 if (i < header.totalColumns()-1) sb.append(format.getDelimiter());
                 else {
-                    for (char c : format.getDestinationLineEnd()){
+                    for (char c : format.getOutputFileLineEnd()){
                         sb.append(c);
                     }
                 }
@@ -51,7 +51,7 @@ public class CSVArray<T extends CSVRecord> extends ArrayList {
         }
         this.forEach(item ->{
             sb.append(((CSVRecord)item).getRecordString(this.format.getDelimiter()));
-            for (char c : format.getDestinationLineEnd()){
+            for (char c : format.getOutputFileLineEnd()){
                 sb.append(c);
             }
         });

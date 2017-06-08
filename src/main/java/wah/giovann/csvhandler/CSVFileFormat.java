@@ -1,6 +1,5 @@
 package wah.giovann.csvhandler;
 
-import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
 /**
  * Created by giovadmin on 4/27/17.
@@ -32,7 +31,7 @@ public class CSVFileFormat {
     private boolean trimSpace;
     private boolean hasHeader;
     private String characterSetName;
-    private char[] destinationLineEnd;
+    private char[] outputFileLineEnd;
 
     public boolean getTrimSpace() { return this.trimSpace; }
 
@@ -60,18 +59,18 @@ public class CSVFileFormat {
     protected void setCharacterSetName(String s) {
         this.characterSetName = s;
     }
-    public char[] getDestinationLineEnd() {
-        return this.destinationLineEnd;
+    public char[] getOutputFileLineEnd() {
+        return this.outputFileLineEnd;
     }
 
-    protected void setDestinationLineEnd(char[] le) {
-        this.destinationLineEnd = le;
+    protected void setOutputFileLineEnd(char[] le) {
+        this.outputFileLineEnd = le;
     }
 
 
     private CSVFileFormat(Builder b){
         this.delimiter = b.delimiter;
-        this.destinationLineEnd = b.destinationLineEnd;
+        this.outputFileLineEnd = b.outputFileLineEnd;
         this.characterSetName = b.characterSetName;
         this.hasHeader = b.hasHeader;
         this.trimSpace = b.trimSpace;
@@ -108,8 +107,8 @@ public class CSVFileFormat {
         }
         sb.append("\n");
         sb.append("Destination Line End: ");
-        if (this.destinationLineEnd.length == 2) sb.append("CARRIAGE RETURN + LINE FEED");
-        else if (this.destinationLineEnd[0] == '\n') sb.append("LINE FEED");
+        if (this.outputFileLineEnd.length == 2) sb.append("CARRIAGE RETURN + LINE FEED");
+        else if (this.outputFileLineEnd[0] == '\n') sb.append("LINE FEED");
         else sb.append("CARRIAGE RETURN");
         sb.append("\n");
         sb.append("Charset Name: "+this.characterSetName+"\n");
@@ -122,11 +121,11 @@ public class CSVFileFormat {
         private boolean trimSpace;
         private boolean hasHeader;
         private String characterSetName;
-        private char[] destinationLineEnd;
+        private char[] outputFileLineEnd;
 
         public Builder(){
             this.delimiter = CSVFileFormat.COMMA_DELIMITER;
-            this.destinationLineEnd = CSVFileFormat.LINE_FEED_LINE_END;
+            this.outputFileLineEnd = CSVFileFormat.LINE_FEED_LINE_END;
             this.characterSetName = null;
             this.hasHeader = true;
             this.trimSpace = true;
@@ -135,8 +134,8 @@ public class CSVFileFormat {
             this.delimiter = c;
             return this;
         }
-        public Builder destinationLineEnd(char[] c) {
-            this.destinationLineEnd = c;
+        public Builder outputFileLineEnd(char[] c) {
+            this.outputFileLineEnd = c;
             return this;
         }
         public Builder characterSetName(String s){
