@@ -146,7 +146,6 @@ class CSVHeader {
             sb.append('[');
             sb.append(s);
             sb.append(']');
-            sb.append(' ');
         }
         return sb.toString();
     }

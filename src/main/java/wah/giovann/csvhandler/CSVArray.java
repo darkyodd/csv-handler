@@ -2,14 +2,13 @@ package wah.giovann.csvhandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Created by giovadmin on 4/27/17.
  */
-public class CSVArray<T extends CSVRecord> extends ArrayList {
-    /**
-     *  State pattern (to let CSVRecord know when certain operations can take place)
-     */
+public class CSVArray extends ArrayList<CSVRecord> {
+
     private CSVFileFormat format;
     private CSVHeader header;
 
@@ -25,10 +24,17 @@ public class CSVArray<T extends CSVRecord> extends ArrayList {
         this.header = h;
     }
 
-    public T getRecord(int index){
-        return (T)this.get(index);
+    public void sortBy(String column, boolean numeric) {
+    //    this.sort((CSVRecord r1, CSVRecord r2)->(numeric?r1.getDouble(column)));
     }
 
+    public void sortBy(int columnIndex, boolean numeric) {
+
+    }
+
+    public List getHeaderList() {
+        return this.header.getColumnsList();
+    }
     public String getHeaderColumnName(int index) {
         return this.header.getColumnName(index);
     }

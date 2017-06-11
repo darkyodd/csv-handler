@@ -17,12 +17,21 @@ public class ValueConversionException extends RuntimeException {
 
     private int errorCode;
     private String key;
+    private int index;
     private CSVRecord record;
 
     public ValueConversionException (int err, String k, CSVRecord r) {
         this.errorCode = err;
         this.key = k;
         this.record = r;
+        this.index = -1;
+    }
+
+    public ValueConversionException (int err, int i, CSVRecord r) {
+        this.errorCode = err;
+        this.index = i;
+        this.record = r;
+        this.key = null;
     }
 
     public String getMessage() {
@@ -54,6 +63,6 @@ public class ValueConversionException extends RuntimeException {
                 break;
         }
 
-        return "The data contained in field '"+this.key+"' could not be converted to data type "+err+".\nCSVRecord: " +record.toString();
+        return "The data contained in field '"+((this.key!=null)?this.key:this.index)+"' could not be converted to data type "+err+".\nCSVRecord: " +record.toString();
     }
 }

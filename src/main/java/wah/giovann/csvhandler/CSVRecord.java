@@ -128,7 +128,27 @@ public class CSVRecord {
         }
     }
 
+    public double getDouble(int column){
+        String obj = this.get(column);
+        if (obj != null){
+            return new Double(obj).doubleValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.DOUBLE, column, this);
+        }
+    }
+
     public float getFloat(String column) {
+        String obj = this.get(column);
+        if (obj != null) {
+            return new Float(obj).floatValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.FLOAT, column, this);
+        }
+    }
+
+    public float getFloat(int column) {
         String obj = this.get(column);
         if (obj != null) {
             return new Float(obj).floatValue();
@@ -148,7 +168,27 @@ public class CSVRecord {
         }
     }
 
+    public long getLong(int column) {
+        String obj = this.get(column);
+        if (obj != null) {
+            return new Long(obj).longValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.LONG, column, this);
+        }
+    }
+
     public int getInt(String column) {
+        String obj = this.get(column);
+        if (obj != null) {
+            return new Integer(obj).intValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.INT, column, this);
+        }
+    }
+
+    public int getInt(int column) {
         String obj = this.get(column);
         if (obj != null) {
             return new Integer(obj).intValue();
@@ -168,7 +208,28 @@ public class CSVRecord {
         }
     }
 
+    public char getChar(int column) {
+        String obj = this.get(column);
+        if (obj != null && obj.length() == 1) {
+            return obj.charAt(0);
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.CHAR, column, this);
+        }
+    }
+
+
     public short getShort(String column) {
+        String obj = this.get(column);
+        if (obj != null && obj.length() == 1) {
+            return new Short(obj).shortValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.SHORT, column, this);
+        }
+    }
+
+    public short getShort(int column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
             return new Short(obj).shortValue();
@@ -188,7 +249,27 @@ public class CSVRecord {
         }
     }
 
+    public byte getByte(int column) {
+        String obj = this.get(column);
+        if (obj != null && obj.length() == 1) {
+            return new Byte(obj).byteValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.BYTE, column, this);
+        }
+    }
+
     public boolean getBoolean(String column) {
+        String obj = this.get(column);
+        if (obj != null && obj.length() == 1) {
+            return new Boolean(obj).booleanValue();
+        }
+        else {
+            throw new ValueConversionException(ValueConversionException.BOOLEAN, column, this);
+        }
+    }
+
+    public boolean getBoolean(int column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
             return new Boolean(obj).booleanValue();
@@ -203,6 +284,17 @@ public class CSVRecord {
         for (int i = 0; i < this.data.size(); i++){
             sb.append(this.data.get(i));
             if (i < this.data.size()-1) sb.append(delimiter);
+        }
+        return sb.toString();
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for (String s : this.data) {
+            sb.append('[');
+            sb.append(s);
+            sb.append(']');
         }
         return sb.toString();
     }

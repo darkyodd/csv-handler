@@ -21,6 +21,10 @@ public class CSVReader {
     private final int bufSize = 256;
     private CSVFileFormat format;
 
+    /**
+     *
+     * @param ft
+     */
     public CSVReader(CSVFileFormat ft) {
         this.format = ft;
     }
@@ -58,17 +62,17 @@ public class CSVReader {
 
     public CSVArray getCSVArray(BufferedReader r) throws CSVParseException {
         try {
-            CSVArray<CSVRecord> ret = null;
+            CSVArray ret = null;
             CSVHeader header = null;
             StringBuilder mainBuffer = new StringBuilder();
             StringBuilder spaceBuffer = new StringBuilder();
             char delim = this.format.getDelimiter();
-            char lc = '\0';
-            int lineNum = 0;
-            int columns = 1;
+            char lc = '\0'; //the last significant character encountered, excluding spaces and tabs
+            int lineNum = 0; //file line number
+            int columns = 1; //number of data columns detected
             int qCount = 0; //quote count
-            boolean headerSet = false;
-            boolean quotedFieldFinished = false;
+            boolean headerSet = false; //whether or not the header has been set
+            boolean quotedFieldFinished = false; //whether a field that has an opening quote has been closed yet
 
             ArrayList<String> d = new ArrayList<>();
             String line;
@@ -93,7 +97,6 @@ public class CSVReader {
 
                     if (c == '"') {
                         if (qCount == 0 && !quotedFieldFinished && i != ca.length - 1 && (i == 0 || ca[i - 1] == delim || lc == delim)) { //this is definitely an opening field quote
-
                             qCount++;
                         } else if (qCount == 1 && !quotedFieldFinished && i != 0 && (i == ca.length - 1 || ca[i + 1] == delim || ca[i + 1] != '"')) { //this is definitely a closing field quote
                             qCount--;
@@ -116,9 +119,12 @@ public class CSVReader {
                             spaceBuffer.setLength(0);
                             mainBuffer.setLength(0);
                         }
+                        else if (!quotedFieldFinished){
+                            mainBuffer.append(c);
+                        }
                         else {
                             mainBuffer.append(c);
-                            throw new CSVParseException(CSVParseException.MISSING_CLOSING_QUOTE, mainBuffer.toString(), lineNum);
+                            throw new CSVParseException(CSVParseException.UNEXPECTED_TOKEN, mainBuffer.toString(), lineNum);
                         }
                     } else {
                         if (!quotedFieldFinished && c != ' ' && c != '\t') {
@@ -139,7 +145,7 @@ public class CSVReader {
                                 else {
                                     header = new CSVHeader(columns); //dummy header
                                 }
-                                ret = new CSVArray<>(this.format, header);
+                                ret = new CSVArray(this.format, header);
                                 if (!this.format.getHasHeader()) {
                                     CSVRecord rec = new CSVRecord(header, d);
                                     ret.add(rec);
@@ -151,12 +157,14 @@ public class CSVReader {
                                 d.clear();
                                 ret.add(rec);
                             }
+                            mainBuffer.setLength(0);
+                        }
+                        else if (qCount == 1 && !quotedFieldFinished) { //multi-line field
+                            mainBuffer.append('\n');
                         }
                         else {
-                            mainBuffer.append(c);
                             throw new CSVParseException(CSVParseException.MISSING_CLOSING_QUOTE, mainBuffer.toString(), lineNum);
                         }
-                        mainBuffer.setLength(0);
                     }
                     if (c != ' ' && c != '\t') {
                         lc = c;
@@ -206,33 +214,23 @@ public class CSVReader {
         }
     }
 
-    private void printList(List l){
-        for (Object o : l){
-            System.out.print(o.toString());
-            System.out.print(" ");
-        }
-        System.out.println();
-    }
-
     public static void main (String [] args) throws IOException {
-        File file = new File(ClassLoader.getSystemClassLoader().getResource("Test.csv").getFile());
+        File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
         CSVFileFormat format = new CSVFileFormat.Builder()
                 .delimiter(CSVFileFormat.COMMA_DELIMITER)
                 .hasHeader(false)
-                .trimSpace(true)
+                .trimSpace(false)
                 .outputFileLineEnd(CSVFileFormat.LINE_FEED_LINE_END)
                 .build();
-    //    CSVFileFormat format = CSVFileFormat.DEFAULT_FORMAT;
         CSVReader reader = new CSVReader(format);
         try {
             long start = System.currentTimeMillis();
-            CSVArray<CSVRecord> arr = reader.getCSVArray(file);
+            CSVArray arr = reader.getCSVArray(file);
             long end = System.currentTimeMillis();
             double time = (new Double(end) - new Double(start))/1000;
-            System.out.println(arr);
-            for (Object r : arr) {
-                System.out.println("'" + ((CSVRecord)r) + "'");
-            }
+            System.out.println(arr.get(1));
+            System.out.println(time);
+
         }
         catch(Exception e){
             e.printStackTrace();
