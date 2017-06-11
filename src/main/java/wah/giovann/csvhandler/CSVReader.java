@@ -215,10 +215,10 @@ public class CSVReader {
     }
 
     public static void main (String [] args) throws IOException {
-        File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
+        File file = new File(ClassLoader.getSystemClassLoader().getResource("finalTestRefactoredETA.csv").getFile());
         CSVFileFormat format = new CSVFileFormat.Builder()
                 .delimiter(CSVFileFormat.COMMA_DELIMITER)
-                .hasHeader(false)
+                .hasHeader(true)
                 .trimSpace(false)
                 .outputFileLineEnd(CSVFileFormat.LINE_FEED_LINE_END)
                 .build();
@@ -228,7 +228,7 @@ public class CSVReader {
             CSVArray arr = reader.getCSVArray(file);
             long end = System.currentTimeMillis();
             double time = (new Double(end) - new Double(start))/1000;
-            arr.sortBy(3, false, CSVArray.DECENDING_ORDER);
+            arr.sortBy("time_of_day", false, true);
             System.out.println(arr);
             System.out.println(time);
 

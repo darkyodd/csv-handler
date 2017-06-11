@@ -26,32 +26,29 @@ public class CSVArray extends ArrayList<CSVRecord> {
         this.header = h;
     }
 
-    public void sortBy(String column, boolean numeric, int order) {
-        switch (order) {
-            case ASCENDING_ORDER:
-                this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
-                        new Double(r1.getDouble(column)).compareTo(new Double(r2.getDouble(column))) :
-                        r1.get(column).compareTo(r2.get(column))));
-                break;
-            default:
-                this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
-                        new Double(r2.getDouble(column)).compareTo(new Double(r1.getDouble(column))) :
-                        r2.get(column).compareTo(r1.get(column))));
-
+    public void sortBy(String column, boolean numeric, boolean ascendingOrder) {
+        if (ascendingOrder) {
+            this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
+                    new Double(r1.getDouble(column)).compareTo(new Double(r2.getDouble(column))) :
+                    r1.get(column).compareTo(r2.get(column))));
+        }
+        else {
+            this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
+                    new Double(r2.getDouble(column)).compareTo(new Double(r1.getDouble(column))) :
+                    r2.get(column).compareTo(r1.get(column))));
         }
     }
 
-    public void sortBy(int columnIndex, boolean numeric, int order) {
-        switch (order) {
-            case ASCENDING_ORDER:
-                this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
-                        new Double(r1.getDouble(columnIndex)).compareTo(new Double(r2.getDouble(columnIndex))) :
-                        r1.get(columnIndex).compareTo(r2.get(columnIndex))));
-                break;
-            default:
-                this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
-                        new Double(r2.getDouble(columnIndex)).compareTo(new Double(r1.getDouble(columnIndex))) :
-                        r2.get(columnIndex).compareTo(r1.get(columnIndex))));
+    public void sortBy(int columnIndex, boolean numeric, boolean ascendingOrder) {
+        if (ascendingOrder) {
+            this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
+                    new Double(r1.getDouble(columnIndex)).compareTo(new Double(r2.getDouble(columnIndex))) :
+                    r1.get(columnIndex).compareTo(r2.get(columnIndex))));
+        }
+        else {
+            this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
+                    new Double(r2.getDouble(columnIndex)).compareTo(new Double(r1.getDouble(columnIndex))) :
+                    r2.get(columnIndex).compareTo(r1.get(columnIndex))));
         }
     }
 
