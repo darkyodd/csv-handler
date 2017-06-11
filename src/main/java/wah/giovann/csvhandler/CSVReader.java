@@ -228,7 +228,8 @@ public class CSVReader {
             CSVArray arr = reader.getCSVArray(file);
             long end = System.currentTimeMillis();
             double time = (new Double(end) - new Double(start))/1000;
-            System.out.println(arr.get(1));
+            arr.sortBy(3, false, CSVArray.DECENDING_ORDER);
+            System.out.println(arr);
             System.out.println(time);
 
         }
