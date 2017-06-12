@@ -1,5 +1,7 @@
 package wah.giovann.csvhandler.error;
 
+import wah.giovann.csvhandler.CSVRecord;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +15,8 @@ public class CSVIntegrityException extends RuntimeException {
     public static final int INVALID_CSVRECORD_ADD = 2;
     public static final int INVALID_CSVHEADER_COLUMN_NUMBER = 3;
     public static final int HEADER_AND_RECORD_DATA_INCOMPATABLE = 4;
+    public static final int COLUMN_REMOVAL_FAILED = 5;
+
     private int errorType;
     private Object relatedObject;
 
@@ -67,6 +71,17 @@ public class CSVIntegrityException extends RuntimeException {
                 for (String s : data) {
                     sb.append("["+s+"] ");
                 }
+                break;
+            case COLUMN_REMOVAL_FAILED:
+                ArrayList<Object> errObjs = (ArrayList<Object>) this.relatedObject;
+                String column = errObjs.get(0).toString();
+                String record = errObjs.get(1).toString();
+
+                sb.append("Failed to remove column '");
+                sb.append(column);
+                sb.append("' from data item '");
+                sb.append(record);
+                sb.append("'.");
                 break;
             default:
         }

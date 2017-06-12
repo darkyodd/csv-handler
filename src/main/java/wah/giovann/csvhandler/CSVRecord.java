@@ -17,6 +17,7 @@ public class CSVRecord {
         this.sharedHeader = new CSVHeader();
         this.data = new ArrayList<>();
     }
+
     public CSVRecord(CSVHeader h) {
         this.sharedHeader = h;
         this.data = new ArrayList<>();
@@ -87,15 +88,20 @@ public class CSVRecord {
         else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, columnIndex);
     }
 
-    public Collection<String> getValues() {
-        return this.data;
+    public List getValues() {
+        return new ArrayList(this.data);
     }
 
-    protected String remove(int columnNum) {
-        return this.data.remove(columnNum);
+    public List getHeaderList() {
+        return this.sharedHeader.getColumnsList();
     }
 
-    protected String remove(String column){
+    public String remove(int columnNum) {
+        if (columnNum < this.sharedHeader.totalColumns()) return this.data.remove(columnNum);
+        else return null;
+    }
+
+    public String remove(String column){
         if (this.sharedHeader.containsColumn(column)) return this.data.remove(this.sharedHeader.indexOfColumn(column));
         else return null;
     }

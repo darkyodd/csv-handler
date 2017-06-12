@@ -215,7 +215,7 @@ public class CSVReader {
     }
 
     public static void main (String [] args) throws IOException {
-        File file = new File(ClassLoader.getSystemClassLoader().getResource("finalTestRefactoredETA.csv").getFile());
+        File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
         CSVFileFormat format = new CSVFileFormat.Builder()
                 .delimiter(CSVFileFormat.COMMA_DELIMITER)
                 .hasHeader(true)
@@ -228,7 +228,8 @@ public class CSVReader {
             CSVArray arr = reader.getCSVArray(file);
             long end = System.currentTimeMillis();
             double time = (new Double(end) - new Double(start))/1000;
-            arr.sortBy("time_of_day", false, true);
+            arr.sortBy(3, true, true);
+            arr.removeColumn("share");
             System.out.println(arr);
             System.out.println(time);
 

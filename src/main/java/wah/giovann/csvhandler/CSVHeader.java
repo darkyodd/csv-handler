@@ -111,11 +111,7 @@ class CSVHeader {
     }
 
     public List<String> getColumnsList() {
-        List<String> ret = new ArrayList<>();
-        for (String s : this.columnNames){
-            ret.add(new String(s));
-        }
-        return ret;
+        return new ArrayList(this.columnNames);
     }
 
     private boolean hasDuplicates() {
@@ -162,3 +158,4 @@ class CSVHeader {
         return true;
     }
 }
+

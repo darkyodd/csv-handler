@@ -1,5 +1,7 @@
 package wah.giovann.csvhandler;
 
+import wah.giovann.csvhandler.error.CSVIntegrityException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -55,6 +57,7 @@ public class CSVArray extends ArrayList<CSVRecord> {
     public List getHeaderList() {
         return this.header.getColumnsList();
     }
+
     public String getHeaderColumnName(int index) {
         return this.header.getColumnName(index);
     }
@@ -62,6 +65,51 @@ public class CSVArray extends ArrayList<CSVRecord> {
     public String getHeaderString() {
         return this.header.toString();
     }
+
+    public void removeColumn(int columnIndex) {
+        this.forEach(item -> {
+            String s = item.remove(columnIndex);
+            if (s == null) {
+                ArrayList<Object> err = new ArrayList<>();
+                err.add(columnIndex);
+                err.add(item);
+                throw new CSVIntegrityException(CSVIntegrityException.COLUMN_REMOVAL_FAILED, err);
+            }
+        });
+        if (this.header.removeColumn(columnIndex) == null) {
+            ArrayList<Object> err = new ArrayList<>();
+            err.add(columnIndex);
+            err.add(this.header);
+            throw new CSVIntegrityException(CSVIntegrityException.COLUMN_REMOVAL_FAILED, err);
+        }
+    }
+
+    public void removeColumn(String column) {
+        this.forEach(item -> {
+            String s = item.remove(column);
+            if (s == null) {
+                ArrayList<Object> err = new ArrayList<>();
+                err.add(column);
+                err.add(item);
+                throw new CSVIntegrityException(CSVIntegrityException.COLUMN_REMOVAL_FAILED, err);
+            }
+        });
+        if (!this.header.removeColumn(column)) {
+            ArrayList<Object> err = new ArrayList<>();
+            err.add(column);
+            err.add(this.header);
+            throw new CSVIntegrityException(CSVIntegrityException.COLUMN_REMOVAL_FAILED, err);
+        }
+    }
+
+    public void addDummyColumn() {
+
+    }
+
+    public void addColumn(String columnName, int columnIndex) {
+
+    }
+
     public String csvString() {
         StringBuilder sb = new StringBuilder();
         if (format.getHasHeader()){
@@ -83,6 +131,7 @@ public class CSVArray extends ArrayList<CSVRecord> {
         });
         return sb.toString();
     }
+
     public String toString() {
         return csvString();
     }
