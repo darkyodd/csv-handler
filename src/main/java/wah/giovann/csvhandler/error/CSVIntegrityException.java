@@ -1,9 +1,6 @@
 package wah.giovann.csvhandler.error;
 
-import wah.giovann.csvhandler.CSVRecord;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -11,11 +8,15 @@ import java.util.List;
  */
 public class CSVIntegrityException extends RuntimeException {
     public static final int NULL_CSVHEADER_ARGUMENT = 0;
-    public static final int DUPLICATE_CSVHEADER_COLUMNS = 1;
+    public static final int DUPLICATE_COLUMNS_IN_CONSTRUCTOR = 1;
     public static final int INVALID_CSVRECORD_ADD = 2;
     public static final int INVALID_CSVHEADER_COLUMN_NUMBER = 3;
     public static final int HEADER_AND_RECORD_DATA_INCOMPATABLE = 4;
     public static final int COLUMN_REMOVAL_FAILED = 5;
+    public static final int DUPLICATE_CSVHEADER_COLUMNS = 6;
+    public static final int ADDING_COLUMN_WITHOUT_HEADER = 7;
+    public static final int INVALID_HEADER_LENGTH = 8;
+    public static final int INVALID_VALUE_SWAP = 9;
 
     private int errorType;
     private Object relatedObject;
@@ -32,14 +33,14 @@ public class CSVIntegrityException extends RuntimeException {
             case NULL_CSVHEADER_ARGUMENT:
                 sb.append("The argument to the CSVHeader object constructor cannot be null.");
                 break;
-            case DUPLICATE_CSVHEADER_COLUMNS:
-                sb.append("The List argument to the CSVHeader object constructor cannot contain duplicate values. ");
+            case DUPLICATE_COLUMNS_IN_CONSTRUCTOR:
+                sb.append("The List argument to the CSVHeader object constructor cannot contain duplicate values. '");
                 ArrayList<String> dups = (ArrayList<String>) relatedObject;
                 for (int i = 0; i < dups.size(); i++){
                     sb.append(dups.get(i));
                     if (i != dups.size()-1) sb.append(", ");
                 }
-                sb.append(".");
+                sb.append("'");
                 break;
             case INVALID_CSVRECORD_ADD:
                 sb.append("Could not add data item to CSVRecord object.");
@@ -83,7 +84,26 @@ public class CSVIntegrityException extends RuntimeException {
                 sb.append(record);
                 sb.append("'.");
                 break;
+            case DUPLICATE_CSVHEADER_COLUMNS:
+                sb.append("Cannot add duplicate column '");
+                sb.append(this.relatedObject);
+                sb.append("' to CSVHeader.");
+                break;
+            case ADDING_COLUMN_WITHOUT_HEADER:
+                sb.append("Cannot add column '");
+                sb.append(this.relatedObject);
+                sb.append("'. This CSVArray has no header.");
+                break;
+            case INVALID_HEADER_LENGTH:
+                ArrayList<Integer> lengths = (ArrayList<Integer>) this.relatedObject;
+                sb.append("New header must be the same size as the old header. \nOld header length: ");
+                sb.append(lengths.get(0));
+                sb.append("\nNew header length: ");
+                sb.append(lengths.get(1));
+                break;
             default:
+
+                break;
         }
         return sb.toString();
     }

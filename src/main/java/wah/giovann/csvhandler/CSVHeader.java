@@ -22,7 +22,7 @@ class CSVHeader {
             this.dummyHeader = false;
             ArrayList<String> dupColumns = (ArrayList<String>)this.getDuplicates();
             if (dupColumns != null) {
-                throw new CSVIntegrityException(CSVIntegrityException.DUPLICATE_CSVHEADER_COLUMNS, dupColumns);
+                throw new CSVIntegrityException(CSVIntegrityException.DUPLICATE_COLUMNS_IN_CONSTRUCTOR, dupColumns);
             }
         }
         else {
@@ -39,6 +39,11 @@ class CSVHeader {
             }
         }
         else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVHEADER_COLUMN_NUMBER, columns);
+    }
+
+    public CSVHeader(CSVHeader other) {
+        this.dummyHeader = other.dummyHeader;
+        this.columnNames = new ArrayList<>(other.columnNames);
     }
 
     public void clearColumns() {
@@ -75,8 +80,8 @@ class CSVHeader {
         return this.columnNames.get(index);
     }
 
-    public int indexOfColumn(String obj) {
-        return this.columnNames.indexOf(obj);
+    public int indexOfColumn(String columnName) {
+        return this.columnNames.indexOf(columnName);
     }
 
     public boolean removeColumn(String columnName) {
@@ -99,15 +104,53 @@ class CSVHeader {
     }
 
     public void addColumn(String name) {
-        if (!this.dummyHeader && !this.columnNames.contains(name)) this.columnNames.add(name);
+        if (!this.dummyHeader) {
+            if (!this.columnNames.contains(name)) this.columnNames.add(name);
+            else throw new CSVIntegrityException(CSVIntegrityException.DUPLICATE_CSVHEADER_COLUMNS, name);
+        }
+        else {
+            throw new CSVIntegrityException(CSVIntegrityException.ADDING_COLUMN_WITHOUT_HEADER, name);
+        }
     }
 
     public void addColumn(int index, String name) {
-        if (!this.dummyHeader && !this.columnNames.contains(name)) this.columnNames.add(index, name);
+        if (!this.dummyHeader) {
+            if (!this.columnNames.contains(name)) this.columnNames.add(index, name);
+            else throw new CSVIntegrityException(CSVIntegrityException.DUPLICATE_CSVHEADER_COLUMNS, name);
+        }
+        else {
+            throw new CSVIntegrityException(CSVIntegrityException.ADDING_COLUMN_WITHOUT_HEADER, name);
+        }
+    }
+
+    public void swapColumns(int index1, int index2){
+        if (index1 >= 0 && index1 < this.columnNames.size() && index2 >= 0 && index1 < this.columnNames.size()) {
+            String temp = this.columnNames.get(index1);
+            this.columnNames.set(index1, this.columnNames.get(index2));
+            this.columnNames.set(index2, temp);
+        }
+        else {
+            ArrayList<Integer> indices = new ArrayList<>();
+            indices.add(index1);
+            indices.add(index2);
+            throw new CSVIntegrityException(CSVIntegrityException.INVALID_VALUE_SWAP, indices);
+        }
     }
 
     public void renameColumn(int index, String name) {
         if (!this.dummyHeader && !this.columnNames.contains(name)) this.columnNames.set(index, name);
+    }
+
+    public void setColumnNames(ArrayList<String> names) {
+        if (names.size() == this.columnNames.size()) {
+            this.columnNames = names;
+        }
+        else{
+            ArrayList<Integer> lengths = new ArrayList<>();
+            lengths.add(this.columnNames.size());
+            lengths.add(names.size());
+            throw new CSVIntegrityException(CSVIntegrityException.INVALID_HEADER_LENGTH, lengths);
+        }
     }
 
     public List<String> getColumnsList() {

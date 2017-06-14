@@ -13,12 +13,12 @@ public class CSVRecord {
     private ArrayList<String> data;
     private CSVHeader sharedHeader;
 
-    public CSVRecord() {
+    protected CSVRecord() {
         this.sharedHeader = new CSVHeader();
         this.data = new ArrayList<>();
     }
 
-    public CSVRecord(CSVHeader h) {
+    protected CSVRecord(CSVHeader h) {
         this.sharedHeader = h;
         this.data = new ArrayList<>();
         for (int i = 0; i < h.totalColumns(); i++){
@@ -26,7 +26,7 @@ public class CSVRecord {
         }
     }
 
-    public CSVRecord(CSVHeader h, ArrayList<String> d) {
+    protected CSVRecord(CSVHeader h, ArrayList<String> d) {
         if (h.totalColumns() == d.size()) {
             this.sharedHeader = h;
             this.data = new ArrayList(d);
@@ -37,6 +37,11 @@ public class CSVRecord {
             headerAndData.add(d);
             throw new CSVIntegrityException(CSVIntegrityException.HEADER_AND_RECORD_DATA_INCOMPATABLE, headerAndData);
         }
+    }
+
+    protected CSVRecord(CSVRecord other) {
+        this.sharedHeader = other.sharedHeader;
+        this.data = new ArrayList<>(other.data);
     }
 
     public boolean containsHeaderColumn(String name){
@@ -76,16 +81,23 @@ public class CSVRecord {
         }
     }
 
-    public void put (String field, Object value) {
-        if (this.sharedHeader.containsColumn(field)) {
-            this.data.set(this.sharedHeader.indexOfColumn(field), value.toString());
+    public void swap()
+    public void set (String column, Object value) {
+        if (this.sharedHeader.containsColumn(column)) {
+            this.data.set(this.sharedHeader.indexOfColumn(column), value.toString());
         }
-        else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, field);
+        else {
+            throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, column);
+        }
     }
 
-    public void put (int columnIndex, Object value) {
+    public void set (int columnIndex, Object value) {
         if (columnIndex < this.data.size()) this.data.set(columnIndex, value.toString());
         else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, columnIndex);
+    }
+
+    protected void insert(int index, String value) {
+        this.data.add(index, value);
     }
 
     public List getValues() {
@@ -96,14 +108,18 @@ public class CSVRecord {
         return this.sharedHeader.getColumnsList();
     }
 
-    public String remove(int columnNum) {
+    protected String remove(int columnNum) {
         if (columnNum < this.sharedHeader.totalColumns()) return this.data.remove(columnNum);
         else return null;
     }
 
-    public String remove(String column){
+    protected String remove(String column){
         if (this.sharedHeader.containsColumn(column)) return this.data.remove(this.sharedHeader.indexOfColumn(column));
         else return null;
+    }
+
+    protected void setSharedHeader(CSVHeader header) {
+        this.sharedHeader = header;
     }
 
     public String getHeaderString() {
@@ -112,16 +128,16 @@ public class CSVRecord {
 
     public void clearAll() {
         for (int i = 0; i < this.data.size(); i++){
-            this.put(i, "");
+            clear(i);
         }
     }
 
     public void clear(int columnNum) {
-        this.put(columnNum, "");
+        this.set(columnNum, "");
     }
 
     public void clear(String column) {
-        this.put(column, "");
+        this.set(column, "");
     }
 
     public double getDouble(String column){

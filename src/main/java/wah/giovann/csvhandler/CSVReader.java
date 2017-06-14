@@ -229,10 +229,8 @@ public class CSVReader {
             long end = System.currentTimeMillis();
             double time = (new Double(end) - new Double(start))/1000;
             arr.sortBy(3, true, true);
-            arr.removeColumn("share");
             System.out.println(arr);
             System.out.println(time);
-
         }
         catch(Exception e){
             e.printStackTrace();

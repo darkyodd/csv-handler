@@ -10,9 +10,6 @@ import java.util.List;
  * Created by giovadmin on 4/27/17.
  */
 public class CSVArray extends ArrayList<CSVRecord> {
-    public static final int ASCENDING_ORDER = 0;
-    public static final int DECENDING_ORDER = 1;
-
     private CSVFileFormat format;
     private CSVHeader header;
 
@@ -102,12 +99,43 @@ public class CSVArray extends ArrayList<CSVRecord> {
         }
     }
 
-    public void addDummyColumn() {
+    public void addDummyColumn(int columnIndex) {
 
     }
 
     public void addColumn(String columnName, int columnIndex) {
+        if (columnIndex < this.header.totalColumns()) {
+            this.header.addColumn(columnName);
+        }
+        else {
+            throw new IndexOutOfBoundsException("Column index too large, cannot add column.");
+        }
+    }
 
+    /**
+     * Written while high-af
+     */
+    public void removeHeader() {
+        this.header.setIsDummyHeader(true);
+    }
+
+    public void putHeader(ArrayList<String> newHeader) {
+        this.header.setIsDummyHeader(false);
+        this.header.setColumnNames(newHeader);
+    }
+
+    public void switchColumns(int index1, int index2) {
+
+    }
+
+    public void insertData(ArrayList<String> data, int index) {
+
+    }
+
+    public void renameColumn(String oldName, String newName) {
+        if (!this.header.getIsDummyHeader()) {
+            this.header.renameColumn(this.header.indexOfColumn(oldName), newName);
+        }
     }
 
     public String csvString() {
