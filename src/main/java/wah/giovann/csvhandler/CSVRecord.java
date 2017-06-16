@@ -63,11 +63,11 @@ public class CSVRecord {
         return data.get(column);
     }
 
-    public String getHeaderColumnName(int index) {
+    public String getColumnName(int index) {
         return this.sharedHeader.getColumnName(index);
     }
 
-    public int getTotalFields(){
+    public int size(){
         return this.data.size();
     }
 
@@ -81,7 +81,20 @@ public class CSVRecord {
         }
     }
 
-    public void swap()
+    public void swapValues(int index1, int index2){
+        if (index1 >= 0 && index1 < this.data.size() && index2 >= 0 && index1 < this.data.size()) {
+            String temp = this.data.get(index1);
+            this.data.set(index1, this.data.get(index2));
+            this.data.set(index2, temp);
+        }
+        else {
+            ArrayList<Integer> indices = new ArrayList<>();
+            indices.add(index1);
+            indices.add(index2);
+            throw new CSVIntegrityException(CSVIntegrityException.INVALID_VALUE_SWAP, indices);
+        }
+    }
+
     public void set (String column, Object value) {
         if (this.sharedHeader.containsColumn(column)) {
             this.data.set(this.sharedHeader.indexOfColumn(column), value.toString());
@@ -96,30 +109,12 @@ public class CSVRecord {
         else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, columnIndex);
     }
 
-    protected void insert(int index, String value) {
-        this.data.add(index, value);
-    }
-
     public List getValues() {
         return new ArrayList(this.data);
     }
 
     public List getHeaderList() {
         return this.sharedHeader.getColumnsList();
-    }
-
-    protected String remove(int columnNum) {
-        if (columnNum < this.sharedHeader.totalColumns()) return this.data.remove(columnNum);
-        else return null;
-    }
-
-    protected String remove(String column){
-        if (this.sharedHeader.containsColumn(column)) return this.data.remove(this.sharedHeader.indexOfColumn(column));
-        else return null;
-    }
-
-    protected void setSharedHeader(CSVHeader header) {
-        this.sharedHeader = header;
     }
 
     public String getHeaderString() {
@@ -319,5 +314,35 @@ public class CSVRecord {
             sb.append(']');
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        CSVRecord o = (CSVRecord) other;
+        if (!o.sharedHeader.equals(this.sharedHeader)) return false;
+        else {
+            for (int i = 0; i < this.data.size(); i++) {
+                if (!this.get(i).equals(o.get(i))) return false;
+            }
+            return true;
+        }
+    }
+
+    protected String remove(int columnNum) {
+        if (columnNum < this.sharedHeader.totalColumns()) return this.data.remove(columnNum);
+        else return null;
+    }
+
+    protected String remove(String column){
+        if (this.sharedHeader.containsColumn(column)) return this.data.remove(this.sharedHeader.indexOfColumn(column));
+        else return null;
+    }
+
+    protected void setSharedHeader(CSVHeader header) {
+        this.sharedHeader = header;
+    }
+
+    protected void insert(int index, String value) {
+        this.data.add(index, value);
     }
 }

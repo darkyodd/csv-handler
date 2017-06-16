@@ -46,7 +46,7 @@ class CSVHeader {
         this.columnNames = new ArrayList<>(other.columnNames);
     }
 
-    public void clearColumns() {
+    public void clearHeader() {
         this.columnNames.clear();
     }
 
@@ -55,10 +55,10 @@ class CSVHeader {
         setDummyColumns();
     }
 
-    private void setDummyColumns() {
+    public void setDummyColumns() {
         if (this.dummyHeader) {
             for (int i = 0; i < this.totalColumns(); i++){
-                this.renameColumn(i, i+"");
+                this.columnNames.set(i, i+"");
             }
         }
     }
@@ -95,21 +95,10 @@ class CSVHeader {
         if (this.dummyHeader) this.setDummyColumns();
         return s;
     }
-
-    public void addDummyColumn() {
+    public void addDummyColumn(int index) {
         if (this.dummyHeader) {
-            int name = this.totalColumns();
-            this.columnNames.add(name+"");
-        }
-    }
-
-    public void addColumn(String name) {
-        if (!this.dummyHeader) {
-            if (!this.columnNames.contains(name)) this.columnNames.add(name);
-            else throw new CSVIntegrityException(CSVIntegrityException.DUPLICATE_CSVHEADER_COLUMNS, name);
-        }
-        else {
-            throw new CSVIntegrityException(CSVIntegrityException.ADDING_COLUMN_WITHOUT_HEADER, name);
+            this.columnNames.add(index, null);
+            this.setDummyColumns();
         }
     }
 
@@ -157,7 +146,7 @@ class CSVHeader {
         return new ArrayList(this.columnNames);
     }
 
-    private boolean hasDuplicates() {
+    public boolean hasDuplicates() {
         Set<String> temp = new HashSet<String>(this.columnNames);
         if (temp.size() < this.totalColumns()) return true;
         else return false;

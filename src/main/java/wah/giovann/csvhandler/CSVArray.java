@@ -25,19 +25,6 @@ public class CSVArray extends ArrayList<CSVRecord> {
         this.header = h;
     }
 
-    public void sortBy(String column, boolean numeric, boolean ascendingOrder) {
-        if (ascendingOrder) {
-            this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
-                    new Double(r1.getDouble(column)).compareTo(new Double(r2.getDouble(column))) :
-                    r1.get(column).compareTo(r2.get(column))));
-        }
-        else {
-            this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
-                    new Double(r2.getDouble(column)).compareTo(new Double(r1.getDouble(column))) :
-                    r2.get(column).compareTo(r1.get(column))));
-        }
-    }
-
     public void sortBy(int columnIndex, boolean numeric, boolean ascendingOrder) {
         if (ascendingOrder) {
             this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
@@ -51,16 +38,38 @@ public class CSVArray extends ArrayList<CSVRecord> {
         }
     }
 
+    public void sortBy(String column, boolean numeric, boolean ascendingOrder) {
+        int index = this.header.indexOfColumn(column);
+        this.sortBy(index, numeric, ascendingOrder);
+    }
+
     public List getHeaderList() {
         return this.header.getColumnsList();
     }
 
-    public String getHeaderColumnName(int index) {
+    public String getColumnName(int index) {
         return this.header.getColumnName(index);
     }
 
     public String getHeaderString() {
         return this.header.toString();
+    }
+
+    public void clearHeader() {
+        this.header.clearHeader();
+    }
+
+    public List getColumnList(int index) {
+        ArrayList<String> ret = new ArrayList<>();
+        this.forEach(item -> {
+            ret.add(item.get(index));
+        });
+        return ret;
+    }
+
+    public List getColumnList(String column) {
+        int index = this.header.indexOfColumn(column);
+        return this.getColumnList(index);
     }
 
     public void removeColumn(int columnIndex) {
@@ -82,33 +91,25 @@ public class CSVArray extends ArrayList<CSVRecord> {
     }
 
     public void removeColumn(String column) {
-        this.forEach(item -> {
-            String s = item.remove(column);
-            if (s == null) {
-                ArrayList<Object> err = new ArrayList<>();
-                err.add(column);
-                err.add(item);
-                throw new CSVIntegrityException(CSVIntegrityException.COLUMN_REMOVAL_FAILED, err);
-            }
-        });
-        if (!this.header.removeColumn(column)) {
-            ArrayList<Object> err = new ArrayList<>();
-            err.add(column);
-            err.add(this.header);
-            throw new CSVIntegrityException(CSVIntegrityException.COLUMN_REMOVAL_FAILED, err);
-        }
+        int index = this.header.indexOfColumn(column);
+        removeColumn(index);
     }
 
     public void addDummyColumn(int columnIndex) {
-
+        if (this.header.getIsDummyHeader()) {
+            this.header.addDummyColumn(columnIndex);
+            this.forEach(item -> {
+                item.insert(columnIndex, "");
+            });
+        }
     }
 
-    public void addColumn(String columnName, int columnIndex) {
-        if (columnIndex < this.header.totalColumns()) {
-            this.header.addColumn(columnName);
-        }
-        else {
-            throw new IndexOutOfBoundsException("Column index too large, cannot add column.");
+    public void addColumn(int columnIndex, String columnName) {
+        if (!this.header.getIsDummyHeader()) {
+            this.header.addColumn(columnIndex, columnName);
+            this.forEach(item -> {
+               item.insert(columnIndex, "");
+            });
         }
     }
 
@@ -124,12 +125,21 @@ public class CSVArray extends ArrayList<CSVRecord> {
         this.header.setColumnNames(newHeader);
     }
 
-    public void switchColumns(int index1, int index2) {
-
+    public void swapColumns(int index1, int index2) {
+        this.header.swapColumns(index1, index2);
+        this.forEach(item -> {
+           item.swapValues(index1, index2);
+        });
     }
 
     public void insertData(ArrayList<String> data, int index) {
+        CSVRecord r = new CSVRecord(this.header, data);
+        this.add(index, r);
+    }
 
+    public void insertData(ArrayList<String> data) {
+        CSVRecord r = new CSVRecord(this.header, data);
+        this.add(r);
     }
 
     public void renameColumn(String oldName, String newName) {
