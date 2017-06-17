@@ -47,7 +47,9 @@ class CSVHeader {
     }
 
     public void clearHeader() {
-        this.columnNames.clear();
+        for (int i = 0; i < this.columnNames.size(); i++) {
+            this.columnNames.set(i, "");
+        }
     }
 
     public void setIsDummyHeader(boolean b) {
@@ -142,7 +144,7 @@ class CSVHeader {
         }
     }
 
-    public List<String> getColumnsList() {
+    public ArrayList<String> getColumnsList() {
         return new ArrayList(this.columnNames);
     }
 

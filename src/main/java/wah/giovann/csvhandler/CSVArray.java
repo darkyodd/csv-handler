@@ -4,24 +4,24 @@ import wah.giovann.csvhandler.error.CSVIntegrityException;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by giovadmin on 4/27/17.
  */
 public class CSVArray extends ArrayList<CSVRecord> {
-    private CSVFileFormat format;
     private CSVHeader header;
 
-    public CSVArray(CSVFileFormat f, CSVHeader h) {
+    public CSVArray() {
         super();
-        this.format = f;
+    }
+
+    protected CSVArray(CSVHeader h) {
+        super();
         this.header = h;
     }
 
-    public CSVArray(Collection c, CSVFileFormat f, CSVHeader h) {
+    protected CSVArray(Collection c, CSVHeader h) {
         super(c);
-        this.format = f;
         this.header = h;
     }
 
@@ -43,7 +43,7 @@ public class CSVArray extends ArrayList<CSVRecord> {
         this.sortBy(index, numeric, ascendingOrder);
     }
 
-    public List getHeaderList() {
+    public ArrayList<String> getHeaderList() {
         return this.header.getColumnsList();
     }
 
@@ -59,7 +59,7 @@ public class CSVArray extends ArrayList<CSVRecord> {
         this.header.clearHeader();
     }
 
-    public List getColumnList(int index) {
+    public ArrayList<String> getColumnList(int index) {
         ArrayList<String> ret = new ArrayList<>();
         this.forEach(item -> {
             ret.add(item.get(index));
@@ -67,7 +67,7 @@ public class CSVArray extends ArrayList<CSVRecord> {
         return ret;
     }
 
-    public List getColumnList(String column) {
+    public ArrayList<String> getColumnList(String column) {
         int index = this.header.indexOfColumn(column);
         return this.getColumnList(index);
     }
@@ -132,14 +132,22 @@ public class CSVArray extends ArrayList<CSVRecord> {
         });
     }
 
-    public void insertData(ArrayList<String> data, int index) {
-        CSVRecord r = new CSVRecord(this.header, data);
-        this.add(index, r);
+    public void swapColumns(String columnName1, String columnName2) {
+        int index1 = this.header.indexOfColumn(columnName1);
+        int index2 = this.header.indexOfColumn(columnName2);
+        this.swapColumns(index1, index2);
     }
 
-    public void insertData(ArrayList<String> data) {
+    public CSVRecord insertData(ArrayList<String> data, int index) {
+        CSVRecord r = new CSVRecord(this.header, data);
+        this.add(index, r);
+        return r;
+    }
+
+    public CSVRecord insertData(ArrayList<String> data) {
         CSVRecord r = new CSVRecord(this.header, data);
         this.add(r);
+        return r;
     }
 
     public void renameColumn(String oldName, String newName) {
@@ -148,9 +156,15 @@ public class CSVArray extends ArrayList<CSVRecord> {
         }
     }
 
-    public String csvString() {
+    public void renameColumn(int columnIndex, String newName) {
+        if (!this.header.getIsDummyHeader()) {
+            this.header.renameColumn(columnIndex, newName);
+        }
+    }
+
+    public String csvString(CSVFileFormat format) {
         StringBuilder sb = new StringBuilder();
-        if (format.getHasHeader()){
+        if (!this.header.getIsDummyHeader()){
             for (int i = 0; i < header.totalColumns(); i++){
                 sb.append(header.getColumnName(i));
                 if (i < header.totalColumns()-1) sb.append(format.getDelimiter());
@@ -162,7 +176,7 @@ public class CSVArray extends ArrayList<CSVRecord> {
             }
         }
         this.forEach(item ->{
-            sb.append(((CSVRecord)item).getRecordString(this.format.getDelimiter()));
+            sb.append(((CSVRecord)item).getRecordString(format.getDelimiter()));
             for (char c : format.getOutputFileLineEnd()){
                 sb.append(c);
             }
@@ -170,7 +184,14 @@ public class CSVArray extends ArrayList<CSVRecord> {
         return sb.toString();
     }
 
+
     public String toString() {
-        return csvString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.header.toString());
+        this.forEach(item -> {
+            sb.append('\n');
+            sb.append(item.toString());
+        });
+        return sb.toString();
     }
 }

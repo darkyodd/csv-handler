@@ -145,7 +145,7 @@ public class CSVReader {
                                 else {
                                     header = new CSVHeader(columns); //dummy header
                                 }
-                                ret = new CSVArray(this.format, header);
+                                ret = new CSVArray(header);
                                 if (!this.format.getHasHeader()) {
                                     CSVRecord rec = new CSVRecord(header, d);
                                     ret.add(rec);
@@ -214,6 +214,14 @@ public class CSVReader {
         }
     }
 
+    public CSVFileFormat getFormat() {
+        return this.format;
+    }
+
+    public void setFormat(CSVFileFormat f) {
+        this.format = f;
+    }
+
     public static void main (String [] args) throws IOException {
         File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
         CSVFileFormat format = new CSVFileFormat.Builder()
@@ -228,9 +236,6 @@ public class CSVReader {
             CSVArray arr = reader.getCSVArray(file);
             long end = System.currentTimeMillis();
             double time = (new Double(end) - new Double(start))/1000;
-            arr.sortBy(3, true, true);
-            System.out.println(arr);
-            System.out.println(time);
         }
         catch(Exception e){
             e.printStackTrace();

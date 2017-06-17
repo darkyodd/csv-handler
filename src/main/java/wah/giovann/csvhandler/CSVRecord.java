@@ -13,11 +13,6 @@ public class CSVRecord {
     private ArrayList<String> data;
     private CSVHeader sharedHeader;
 
-    protected CSVRecord() {
-        this.sharedHeader = new CSVHeader();
-        this.data = new ArrayList<>();
-    }
-
     protected CSVRecord(CSVHeader h) {
         this.sharedHeader = h;
         this.data = new ArrayList<>();
