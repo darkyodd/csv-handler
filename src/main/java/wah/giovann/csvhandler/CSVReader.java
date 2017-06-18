@@ -221,24 +221,4 @@ public class CSVReader {
     public void setFormat(CSVFileFormat f) {
         this.format = f;
     }
-
-    public static void main (String [] args) throws IOException {
-        File file = new File(ClassLoader.getSystemClassLoader().getResource("facebook2Train.csv").getFile());
-        CSVFileFormat format = new CSVFileFormat.Builder()
-                .delimiter(CSVFileFormat.COMMA_DELIMITER)
-                .hasHeader(true)
-                .trimSpace(false)
-                .outputFileLineEnd(CSVFileFormat.LINE_FEED_LINE_END)
-                .build();
-        CSVReader reader = new CSVReader(format);
-        try {
-            long start = System.currentTimeMillis();
-            CSVArray arr = reader.getCSVArray(file);
-            long end = System.currentTimeMillis();
-            double time = (new Double(end) - new Double(start))/1000;
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-    }
 }
