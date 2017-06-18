@@ -6,14 +6,14 @@ import wah.giovann.csvhandler.error.CSVParseException;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
-
 
 /**
- * Class responsible for the reading information from .csv files. Instances
- * are created using a custom wah.giovann.csvhandler.CSVFileFormat object or the default wah.giovann.csvhandler.CSVFileFormat
- * object.
- *
+ * The <code>CSVReader</code> class is responsible for reading of information from .csv files.
+ * <br>
+ *<code>CSVReader</code> parses .csv files and returns a usable <code>CSVArray</code> object for
+ * data manipulation. The input file format is specified by a <code>CSVFileFormat</code> object passed to the
+ * <code>CSVReader</code> constructor. <code>CSVReader</code> can parse any file with specification
+ * compliant with RFC 4180 (see <a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank">wikipedia page</a>).
  * @author Giovann Wah
  * @version 1.0
  */
@@ -22,14 +22,21 @@ public class CSVReader {
     private CSVFileFormat format;
 
     /**
-     *
-     * @param ft
+     *Creates a new <code>CSVReader</code> instance that can read a .csv file based on the given input file format.
+     * @param inputFormat - the input file format
      */
-    public CSVReader(CSVFileFormat ft) {
-        this.format = ft;
+    public CSVReader(CSVFileFormat inputFormat) {
+        this.format = inputFormat;
     }
 
-    public CSVArray getCSVArray(File file) throws CSVParseException {
+    /**
+     *Returns a <code>CSVArray</code> instance after parsing the contents of the <code>File</code> argument. The contents
+     * the file must conform to specification RFC 4180 in order to be properly parsed.
+     * @param file - A reference to a file
+     * @return A <code>CSVArray</code> instance.
+     * @throws CSVParseException
+     */
+    public CSVArray readCSV(File file) throws CSVParseException {
         try(FileInputStream fis = new FileInputStream(file)) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             int nread;
@@ -41,7 +48,7 @@ public class CSVReader {
             String charSet = getBestCharsetName(bais);
             BufferedInputStream bis = new BufferedInputStream(new ByteArrayInputStream(baos.toByteArray()));
             BufferedReader reader = new BufferedReader(new InputStreamReader(bis, charSet));
-            return this.getCSVArray(reader);
+            return this.readCSV(reader);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -49,10 +56,16 @@ public class CSVReader {
         return null;
     }
 
-    public CSVArray getCSVArray(String csvString) throws CSVParseException {
+    /**
+     *Returns a <code>CSVArray</code> instance after parsing the <code>String</code> representation of the CSV data.
+     * @param csvString - a string representation of .csv file contents
+     * @return A <code>CSVArray</code> instance.
+     * @throws CSVParseException
+     */
+    public CSVArray readCSV(String csvString) throws CSVParseException {
         String charSet = getBestCharsetName(null);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(IOUtils.toInputStream(csvString, charSet), charSet))) {
-            return this.getCSVArray(reader);
+            return this.readCSV(reader);
         }
         catch(IOException e){
             e.printStackTrace();
@@ -60,7 +73,13 @@ public class CSVReader {
         return null;
     }
 
-    public CSVArray getCSVArray(BufferedReader r) throws CSVParseException {
+    /**
+     *
+     * @param r - the <code>BufferedReader</code>
+     * @return
+     * @throws CSVParseException
+     */
+    public CSVArray readCSV(BufferedReader r) throws CSVParseException {
         try {
             CSVArray ret = null;
             CSVHeader header = null;
@@ -180,7 +199,7 @@ public class CSVReader {
     }
 
     /**
-     * Returns the best Charset to use for the InputStream. If the CSVFileFormat object specifies a Charset, that
+     * Returns the best <code>Charset</code> to use for the <code>InputStream</code>. If the <code>CSVFileFormat</code> object specifies a <code></code>Charset, that
      * is returned. Otherwise, the InputStream is partially read by UniversalDetector and the best Charset is then
      * detected. If this fails, the default system character encoding is returned.
      * @param is - the InputStream

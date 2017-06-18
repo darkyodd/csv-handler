@@ -11,8 +11,8 @@ import java.io.IOException;
 public class CSVWriter {
     private CSVFileFormat format;
 
-    public CSVWriter(CSVFileFormat f) {
-        this.format = f;
+    public CSVWriter(CSVFileFormat outputFormat) {
+        this.format = outputFormat;
     }
 
     public void write(CSVArray array, String filePath, boolean append) {
