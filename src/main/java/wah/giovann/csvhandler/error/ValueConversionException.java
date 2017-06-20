@@ -3,7 +3,9 @@ package wah.giovann.csvhandler.error;
 import wah.giovann.csvhandler.CSVRecord;
 
 /**
- * Created by giovadmin on 4/28/17.
+ * Exception thrown when a <code>String</code> field in a <code>CSVRecord</code> cannot be successfully converted into another.
+ * @author Giovann Wah
+ * @version 1.0
  */
 public class ValueConversionException extends RuntimeException {
     public static final int INT = 0;

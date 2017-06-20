@@ -9,11 +9,11 @@ import java.util.ArrayList;
 
 /**
  * The <code>CSVReader</code> class is responsible for reading of information from .csv files.
- * <br>
+ * <br><br>
  *<code>CSVReader</code> parses .csv files and returns a usable <code>CSVArray</code> object for
  * data manipulation. The input file format is specified by a <code>CSVFileFormat</code> object passed to the
- * <code>CSVReader</code> constructor. <code>CSVReader</code> can parse any file with specification
- * compliant with RFC 4180 (see <a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank">wikipedia page</a>).
+ * <code>CSVReader</code> constructor. Here, the format's <code>outputFileLineEnd</code> field is ignored. <code>CSVReader</code> can parse any file with specification
+ * compliant with RFC 4180 (see <a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank">the CSV wikipedia page</a>).
  * @author Giovann Wah
  * @version 1.0
  */
@@ -32,7 +32,7 @@ public class CSVReader {
     /**
      *Returns a <code>CSVArray</code> instance after parsing the contents of the <code>File</code> argument. The contents
      * the file must conform to specification RFC 4180 in order to be properly parsed.
-     * @param file - A reference to a file
+     * @param file A reference to a file
      * @return A <code>CSVArray</code> instance.
      * @throws CSVParseException
      */
@@ -57,8 +57,9 @@ public class CSVReader {
     }
 
     /**
-     *Returns a <code>CSVArray</code> instance after parsing the <code>String</code> representation of the CSV data.
-     * @param csvString - a string representation of .csv file contents
+     *Returns a <code>CSVArray</code> instance after parsing the <code>String</code> representation of the CSV data. The contents
+     * the data must conform to specification RFC 4180 in order to be properly parsed.
+     * @param csvString a string representation of .csv file contents
      * @return A <code>CSVArray</code> instance.
      * @throws CSVParseException
      */
@@ -74,8 +75,9 @@ public class CSVReader {
     }
 
     /**
-     *
-     * @param r - the <code>BufferedReader</code>
+     *Returns a <code>CSVArray</code> instance after parsing the characters of the <code>BufferedReader</code>. The contents
+     * the data being read must conform to specification RFC 4180 in order to be properly parsed.
+     * @param r the <code>BufferedReader</code>
      * @return
      * @throws CSVParseException
      */
@@ -202,7 +204,7 @@ public class CSVReader {
      * Returns the best <code>Charset</code> to use for the <code>InputStream</code>. If the <code>CSVFileFormat</code> object specifies a <code></code>Charset, that
      * is returned. Otherwise, the InputStream is partially read by UniversalDetector and the best Charset is then
      * detected. If this fails, the default system character encoding is returned.
-     * @param is - the InputStream
+     * @param is the InputStream
      * @return canonical name of the Charset, as a String
      */
     private String getBestCharsetName(InputStream is) {
@@ -233,10 +235,18 @@ public class CSVReader {
         }
     }
 
+    /**
+     *Returns the <code>CSVFileFormat</code> associated with this <code>CSVReader</code>
+     * @return the input file format .
+     */
     public CSVFileFormat getFormat() {
         return this.format;
     }
 
+    /**
+     *Sets the <code>CSVFileFormat</code> associated with this <code>CSVReader</code>
+     * @param f the new format
+     */
     public void setFormat(CSVFileFormat f) {
         this.format = f;
     }

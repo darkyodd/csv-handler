@@ -6,25 +6,65 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Created by giovadmin on 4/27/17.
+ * The <code>CSVArray</code> class is a collection <code>CSVRecord</code> objects that represents the contents
+ * of at .csv file.
+ * <br><br>
+ * A <code>CSVArray</code> can be manipulated in a number of ways, such as modifying the header, adding or removing
+ * data items or columns, or to sorting based on column names. The <code>CSVArray</code> can then written to file using an instance of the
+ * <code>CSVWriter</code> class.
+ * <br><br>
+ * In the normal case, a <code>CSVArray</code> instance is created by a <code>CSVReader</code> using the <code>readCSV</code> method.
+ * @author Giovann Wah
+ * @version 1.0
  */
 public class CSVArray extends ArrayList<CSVRecord> {
     private CSVHeader header;
 
+    /**
+     * Constructs a new <code>CSVArray</code> instance.
+     */
+
     public CSVArray() {
         super();
+        this.header = null;
     }
 
+    /**
+     * Constructs a new <code>CSVArray</code> instance based on another <code>CSVArray</code> instance.
+     * @param other A <code>CSVArray</code> instance.
+     */
+    public CSVArray(CSVArray other) {
+        this(other, other.header);
+    }
+
+    /**
+     * Constructs a new <code>CSVArray</code> instance with the specified <code>CSVHeader</code> instance.
+     * @param h The <code>CSVHeader</code> instance.
+     */
     protected CSVArray(CSVHeader h) {
         super();
         this.header = h;
     }
 
+    /**
+     * Constructs a new <code>CSVArray</code> instance with the specified <code>CSVHeader</code> instance and <code>Collection</code>
+     * instance.
+     * @param c The <code>Collection</code> instance.
+     * @param h The <code>CSVHeader</code> instance.
+     */
     protected CSVArray(Collection c, CSVHeader h) {
         super(c);
         this.header = h;
     }
 
+    /**
+     * Sorts the <code>CSVArray</code> records based on their values in the column at index <code>columnIndex</code>. Whether or not
+     * the records should be sorted by treating values as numeric or alphanumeric is determined by the <code>boolean</code> <code>numeric</code>. Whether
+     * or not the records should be sorted in ascending or descending order is determined by the <code>boolean</code> <code>ascendingOrder</code>.
+     * @param columnIndex index of the header column with which records will be sorted.
+     * @param numeric if true, treat the values found at the index <code>columnIndex</code> as numeric. Otherwise, treat them as alphanumeric.
+     * @param ascendingOrder if true, sort the records in ascending order. Otherwise, sort the records in descending order.
+     */
     public void sortBy(int columnIndex, boolean numeric, boolean ascendingOrder) {
         if (ascendingOrder) {
             this.sort((CSVRecord r1, CSVRecord r2) -> (numeric ?
@@ -38,11 +78,24 @@ public class CSVArray extends ArrayList<CSVRecord> {
         }
     }
 
+    /**
+     * Sorts the <code>CSVArray</code> records based on the field values at <code>column</code>. Whether or not
+     * the records should be sorted by treating values as numeric or alphanumeric is determined by the <code>boolean</code> <code>numeric</code>. Whether
+     * or not the records should be sorted in ascending or descending order is determined by the <code>boolean</code> <code>ascendingOrder</code>.
+     * @param column header column with which records will be sorted.
+     * @param numeric if true, treat the values found at the index <code>columnIndex</code> as numeric. Otherwise, treat them as alphanumeric.
+     * @param ascendingOrder if true, sort the records in ascending order. Otherwise, sort the records in descending order.
+     */
     public void sortBy(String column, boolean numeric, boolean ascendingOrder) {
         int index = this.header.indexOfColumn(column);
         this.sortBy(index, numeric, ascendingOrder);
     }
 
+    /**
+     *Returns an <code>ArrayList</code> of all strings in the header of the file, in the order in which they appear/will appear in the
+     * file.
+     * @return An <code>ArrayList</code> of all the header values.
+     */
     public ArrayList<String> getHeaderList() {
         return this.header.getColumnsList();
     }

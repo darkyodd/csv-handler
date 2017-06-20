@@ -5,7 +5,7 @@ import wah.giovann.csvhandler.error.CSVIntegrityException;
 import java.util.*;
 
 /**
- * Created by giovadmin on 5/14/17.
+ *
  */
 class CSVHeader {
     private ArrayList<String> columnNames;

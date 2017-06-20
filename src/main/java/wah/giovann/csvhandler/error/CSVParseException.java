@@ -1,7 +1,9 @@
 package wah.giovann.csvhandler.error;
 
 /**
- * Created by giovadmin on 5/11/17.
+ * Exception thrown when something goes wrong with .csv file parsing.
+ * @author Giovann Wah
+ * @version 1.0
  */
 public class CSVParseException extends Exception {
     public static final int UNEXPECTED_TOKEN = 0;

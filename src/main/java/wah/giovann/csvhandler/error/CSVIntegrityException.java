@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by giovadmin on 5/16/17.
+ *Exception thrown to prevent any action that may invalidate the integrity of a <code>CSVArray</code>
+ * and/or the resulting output file.
+ * @author Giovann Wah
+ * @version 1.0
  */
 public class CSVIntegrityException extends RuntimeException {
     public static final int NULL_CSVHEADER_ARGUMENT = 0;
