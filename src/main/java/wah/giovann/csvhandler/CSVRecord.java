@@ -6,7 +6,10 @@ import wah.giovann.csvhandler.error.ValueConversionException;
 import java.util.*;
 
 /**
- * Created by giovadmin on 4/27/17.
+ * The <code>CSVRecord</code> class represents a row of data in a .csv file. An instance of of this class
+ * can only be created in the context of an existing <code>CSVArray</code> instance.
+ * @author Giovann Wah
+ * @version 1.0
  */
 public class CSVRecord {
 
@@ -39,6 +42,11 @@ public class CSVRecord {
         this.data = new ArrayList<>(other.data);
     }
 
+    /**
+     * Returns true if one of the data items in this instance is mapped to the header column <code>name</code>.
+     * @param name
+     * @return
+     */
     public boolean containsHeaderColumn(String name){
         return this.sharedHeader.containsColumn(name);
     }
