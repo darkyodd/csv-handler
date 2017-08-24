@@ -242,8 +242,13 @@ public class CSVArray extends ArrayList<CSVRecord> {
      * @param newHeader An <code>ArrayList</code> of <code>String</code>s representing the new header information.
      */
     public void putHeader(ArrayList<String> newHeader) {
-        this.header.setIsDummyHeader(false);
-        this.header.setColumnNames(newHeader);
+        if (this.header == null) {
+            this.header = new CSVHeader(newHeader);
+        }
+        else {
+            this.header.setIsDummyHeader(false);
+            this.header.setColumnNames(newHeader);
+        }
     }
 
     /**

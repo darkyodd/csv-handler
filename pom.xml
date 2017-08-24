@@ -6,7 +6,7 @@
 
     <groupId>wah.giovann</groupId>
     <artifactId>csv_handler</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <name>CSV Handler</name>
     <description>
         A java-based API that can be utilized to easily work with and manipulate .csv files.
@@ -20,7 +20,8 @@
     </developers>
     <packaging>jar</packaging>
     <properties>
-        <java.version>1.8</java.version>
+    	<maven.compiler.source>1.8</maven.compiler.source>
+    	<maven.compiler.target>1.8</maven.compiler.target>
     </properties>
     <reporting>
         <plugins>
@@ -29,6 +30,13 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
             </plugin>
+	    <plugin>    
+        	<artifactId>maven-compiler-plugin</artifactId>
+        	<configuration>
+            		<source>1.8</source>
+            		<target>1.8</target>
+        	</configuration>
+    	    </plugin>
         </plugins>
     </reporting>
     <dependencies>

@@ -44,8 +44,8 @@ public class CSVRecord {
 
     /**
      * Returns true if one of the data items in this instance is mapped to the header column <code>name</code>.
-     * @param name
-     * @return
+     * @param name The name of the header to check for.
+     * @return True if
      */
     public boolean containsHeaderColumn(String name){
         return this.sharedHeader.containsColumn(name);
