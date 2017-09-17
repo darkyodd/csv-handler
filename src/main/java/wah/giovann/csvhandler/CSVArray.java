@@ -4,6 +4,7 @@ import wah.giovann.csvhandler.error.CSVIntegrityException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * The <code>CSVArray</code> class is a collection <code>CSVRecord</code> objects that represents the contents
@@ -92,6 +93,40 @@ public class CSVArray extends ArrayList<CSVRecord> {
     public void sortBy(String column, boolean numeric, boolean ascendingOrder) {
         int index = this.header.indexOfColumn(column);
         this.sortBy(index, numeric, ascendingOrder);
+    }
+
+    /**
+     * Returns a HashMap containing a grouping of CSVRecords in this CSVArray based on
+     * the values passed through the column variable.
+     * @param columns The columns to group the CSVArray objects by.
+     * @return A HashMap object
+     */
+    public HashMap<String, CSVArray> groupBy(String... columns) {
+        if (columns.length == 0) return null;
+        HashMap<String, CSVArray> map = new HashMap<>();
+        String key;
+        for (CSVRecord r : this) {
+            if (columns.length == 1) {
+                key = r.get(columns[0]);
+            } else {
+                key = new String();
+                for (int i = 0; i < columns.length; i++) {
+                    key += r.get(columns[i]);
+                    if (i != columns.length - 1) key += "|";
+                }
+            }
+            CSVArray arr = map.get(key);
+            if (arr == null) {
+                arr = new CSVArray();
+                arr.putHeader(this.getHeaderList());
+                arr.insertData((ArrayList<String>)r.getValues());
+                map.put(key, arr);
+            }
+            else {
+                arr.insertData((ArrayList<String>)r.getValues());
+            }
+        }
+        return map;
     }
 
     /**
