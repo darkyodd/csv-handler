@@ -367,7 +367,7 @@ public class CSVArray extends ArrayList<CSVRecord> {
         CSVArray ret = new CSVArray();
         for (String key : keys) {
             CSVArray add = map.get(key);
-            if (!ret.hasHeader() && add.hasHeader() && ret.header.equals(add.header)) ret.putHeader(add.getHeaderList());
+            ret.putHeader(add.getHeaderList());
             ret.addAll(add);
         }
         return ret;
