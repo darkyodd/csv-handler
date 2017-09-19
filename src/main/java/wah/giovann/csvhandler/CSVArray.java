@@ -374,6 +374,18 @@ public class CSVArray extends ArrayList<CSVRecord> {
     }
 
     /**
+     * Replaces this CSVArray's header and CSVRecords with shallow copies of those in the other CSVArray.
+     * @param other The CSVArray to copy.
+     */
+    public void copyState(CSVArray other) {
+        this.clear();
+        this.header = new CSVHeader(other.header);
+        for (CSVRecord r : other) {
+            this.insertData((ArrayList<String>)r.getValues());
+        }
+    }
+
+    /**
      * Returns a <code>String</code> representation of this <code>CSVArray</code> instance, using the specification
      * given in the <code>format</code> argument.
      * @param format The <code>CSVFileFormat</code>
