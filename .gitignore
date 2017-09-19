@@ -2,9 +2,6 @@
 *.iml
 **/*.iml
 
-#### ignore target folder
-target/
-
 #### ignore IntelliJ .idea folder
 .idea/
 

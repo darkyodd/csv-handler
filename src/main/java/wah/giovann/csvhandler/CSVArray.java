@@ -5,6 +5,7 @@ import wah.giovann.csvhandler.error.CSVIntegrityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * The <code>CSVArray</code> class is a collection <code>CSVRecord</code> objects that represents the contents
@@ -354,6 +355,22 @@ public class CSVArray extends ArrayList<CSVRecord> {
         if (!this.header.getIsDummyHeader()) {
             this.header.renameColumn(columnIndex, newName);
         }
+    }
+
+    /**
+     * Merges all the CSVArrays in this map into one CSVArray, assuming they all have the same header.
+     * @param map The HashMap to collapse.
+     * @return a new CSVArray made of the contents of the map
+     */
+    public static CSVArray collapse(HashMap<String,CSVArray> map) {
+        Set<String> keys = map.keySet();
+        CSVArray ret = new CSVArray();
+        for (String key : keys) {
+            CSVArray add = map.get(key);
+            if (!ret.hasHeader() && add.hasHeader() && ret.header.equals(add.header)) ret.putHeader(add.getHeaderList());
+            ret.addAll(add);
+        }
+        return ret;
     }
 
     /**
