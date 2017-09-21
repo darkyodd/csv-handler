@@ -131,6 +131,24 @@ public class CSVArray extends ArrayList<CSVRecord> {
     }
 
     /**
+     * Filter this array based on the selected values of the selected columns
+     * @param columns The columns to look for the values
+     * @param values The values associated with the columns to look for.
+     * @return A new CSVArray containing the filtered values.
+     */
+    public CSVArray filter(String[] columns, String[] values) {
+        CSVArray ret = new CSVArray();
+        ret.putHeader(this.getHeaderList());
+        m: for (CSVRecord r : this) {
+            for (int i = 0; i < columns.length; i++) {
+                if (!r.get(columns[i]).equals(values[i])) continue m;
+            }
+            ret.insertData((ArrayList<String>)r.getValues());
+        }
+        return ret;
+    }
+
+    /**
      *Returns an <code>ArrayList</code> of all strings in the header of the file, in the order in which they appear/will appear in the
      * file.
      * @return An <code>ArrayList</code> of all the header values.
