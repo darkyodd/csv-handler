@@ -36,11 +36,27 @@ public class CSVWriter {
      * @param append if true, append the data to the file in the filePath. Otherwise, overwrite.
      */
     public void write(CSVArray array, String filePath, boolean append) {
-        try (FileWriter fw = new FileWriter(new File(filePath), append)) {
+        int index = filePath.lastIndexOf('/');
+        String dir = filePath.substring(0,index);
+        File f = null;
+        FileWriter fw = null;
+        try {
+            f = new File(dir);
+            if (f.isDirectory() && !f.exists()) f.mkdir();
+            fw = new FileWriter(filePath,append);
             fw.write(array.csvString(format));
         }
         catch (IOException e) {
             e.printStackTrace();
+        }
+        finally {
+            try {
+                if (fw != null) fw.close();
+                if (f != null) f = null;
+            }
+            catch(Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
