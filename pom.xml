@@ -6,7 +6,7 @@
 
     <groupId>wah.giovann</groupId>
     <artifactId>csv_handler</artifactId>
-    <version>1.0.7-SNAPSHOT</version>
+    <version>1.0.8-SNAPSHOT</version>
     <name>CSV Handler</name>
     <description>
         A java-based API that can be utilized to easily work with and manipulate .csv files.

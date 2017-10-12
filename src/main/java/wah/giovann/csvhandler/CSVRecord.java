@@ -6,8 +6,10 @@ import wah.giovann.csvhandler.error.ValueConversionException;
 import java.util.*;
 
 /**
- * The <code>CSVRecord</code> class represents a row of data in a .csv file. An instance of of this class
- * can only be created in the context of an existing <code>CSVArray</code> instance.
+ * The <code>CSVRecord</code> class represents a row of data in a .csv file. <code>CSVRecord</code>s are not designed
+ * to be instantiated manually. An instance of of this class
+ * can only be created in the context of first creating a <code>CSVArray</code> object, and then accessing its <code>CSVRecord</code>s
+ * as you would the members of any other <code>List</code> object. All data in a <code>CSVRecord</code> are stored as <code>String</code>s.
  * @author Giovann Wah
  * @version 1.0
  */
@@ -45,16 +47,26 @@ public class CSVRecord {
     /**
      * Returns true if one of the data items in this instance is mapped to the header column <code>name</code>.
      * @param name The name of the header to check for.
-     * @return True if
+     * @return True if the header contains this value
      */
     public boolean containsHeaderColumn(String name){
         return this.sharedHeader.containsColumn(name);
     }
 
+    /**
+     * Returns true if this <code>CSVRecord</code> contains this <code>String</code> value at any index.
+     * @param value The <code>String</code> to search for.
+     * @return True if this object contains the value.
+     */
     public boolean containsValue(String value){
         return data.contains(value);
     }
 
+    /**
+     * Returns the <code>String</code> value at the specified column.
+     * @param columnName The name of the column to get the value from.
+     * @return The <code>String</code> value at the specified column.
+     */
     public String get(String columnName) {
         if (!this.sharedHeader.containsColumn(columnName)) {
             throw new ArrayIndexOutOfBoundsException("No column named \""+columnName+"\" exists in this CSVRecord.");
@@ -62,18 +74,36 @@ public class CSVRecord {
         return this.get(this.sharedHeader.indexOfColumn(columnName));
     }
 
+    /**
+     * Returns the <code>String</code> value at the specified column.
+     * @param column The index of the column to get the value from.
+     * @return The <code>String</code> value at the specified column.
+     */
     public String get(int column) {
         return data.get(column);
     }
 
+    /**
+     * Returns the name of the column at the specified index.
+     * @param index The column index
+     * @return The name of the column at that index.
+     */
     public String getColumnName(int index) {
         return this.sharedHeader.getColumnName(index);
     }
 
+    /**
+     * Returns the total number of values in this object.
+     * @return The number of values in this <code>CSVRecord.</code>
+     */
     public int size(){
         return this.data.size();
     }
 
+    /**
+     * Checks if this record is empty or not. A record is considered empty if its values are all null or the empty string.
+     * @return <code>true</code> if this CSVRecord is empty.
+     */
     public boolean isEmpty() {
         if (this.data.isEmpty()) return true;
         else {
@@ -84,6 +114,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Swaps the values at the specified indices.
+     * @param index1 The first index.
+     * @param index2 The second index.
+     */
     public void swapValues(int index1, int index2){
         if (index1 >= 0 && index1 < this.data.size() && index2 >= 0 && index1 < this.data.size()) {
             String temp = this.data.get(index1);
@@ -98,6 +133,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Sets the value at the specified column to the specified value.
+     * @param column The column who's value will be set.
+     * @param value The new value.
+     */
     public void set (String column, Object value) {
         if (this.sharedHeader.containsColumn(column)) {
             this.data.set(this.sharedHeader.indexOfColumn(column), value.toString());
@@ -107,37 +147,70 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Sets the value at the specified column to the specified value.
+     * @param columnIndex The column index who's value will be set.
+     * @param value The new value.
+     */
     public void set (int columnIndex, Object value) {
         if (columnIndex < this.data.size()) this.data.set(columnIndex, value.toString());
         else throw new CSVIntegrityException(CSVIntegrityException.INVALID_CSVRECORD_ADD, columnIndex);
     }
 
+    /**
+     * Returns a list of all the values in this <code>CSVRecord</code>.
+     * @return A <code>List</code> containing this record's values.
+     */
     public List getValues() {
         return new ArrayList(this.data);
     }
 
+    /**
+     * Returns a list of all the column names in this record.
+     * @return A <code>List</code> containing this record's header values.
+     */
     public List getHeaderList() {
         return this.sharedHeader.getColumnsList();
     }
 
+    /**
+     * Returns a <code>String</code> representation of this record's header.
+     * @return A <code>String</code> representing the header.
+     */
     public String getHeaderString() {
         return this.sharedHeader.toString();
     }
 
+    /**
+     * Sets all values of this <code>CSVRecord</code> to the empty string.
+     */
     public void clearAll() {
         for (int i = 0; i < this.data.size(); i++){
             clear(i);
         }
     }
 
+    /**
+     * Sets the value at the specified column to the empty string.
+     * @param columnNum The index of the column to clear.
+     */
     public void clear(int columnNum) {
         this.set(columnNum, "");
     }
 
+    /**
+     * Sets the value at the specified column to the empty string.
+     * @param column The name of the column to clear.
+     */
     public void clear(String column) {
         this.set(column, "");
     }
 
+    /**
+     * Returns the value at the specified column as a <code>double</code>.
+     * @param column The column name who's value should be returned.
+     * @return <code>double</code> value at the column.
+     */
     public double getDouble(String column){
         String obj = this.get(column);
         if (obj != null){
@@ -148,6 +221,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>double</code>.
+     * @param column The column index who's value should be returned.
+     * @return <code>double</code> value at the column.
+     */
     public double getDouble(int column){
         String obj = this.get(column);
         if (obj != null){
@@ -158,6 +236,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>float</code>.
+     * @param column The column name who's value should be returned.
+     * @return <code>float</code> value at the column.
+     */
     public float getFloat(String column) {
         String obj = this.get(column);
         if (obj != null) {
@@ -168,6 +251,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>flaot</code>.
+     * @param column The column index who's value should be returned.
+     * @return <code>float</code> value at the column.
+     */
     public float getFloat(int column) {
         String obj = this.get(column);
         if (obj != null) {
@@ -178,6 +266,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>long</code>.
+     * @param column The column name who's value should be returned.
+     * @return <code>long</code> value at the column.
+     */
     public long getLong(String column) {
         String obj = this.get(column);
         if (obj != null) {
@@ -188,6 +281,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>long</code>.
+     * @param column The column index who's value should be returned.
+     * @return <code>long</code> value at the column.
+     */
     public long getLong(int column) {
         String obj = this.get(column);
         if (obj != null) {
@@ -198,6 +296,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>int</code>.
+     * @param column The column name who's value should be returned.
+     * @return <code>int</code> value at the column.
+     */
     public int getInt(String column) {
         String obj = this.get(column);
         if (obj != null) {
@@ -208,6 +311,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>int</code>.
+     * @param column The column index who's value should be returned.
+     * @return <code>int</code> value at the column.
+     */
     public int getInt(int column) {
         String obj = this.get(column);
         if (obj != null) {
@@ -218,6 +326,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>char</code>.
+     * @param column The column name who's value should be returned.
+     * @return <code>char</code> value at the column.
+     */
     public char getChar(String column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
@@ -228,6 +341,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>char</code>.
+     * @param column The column index who's value should be returned.
+     * @return <code>char</code> value at the column.
+     */
     public char getChar(int column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
@@ -238,7 +356,11 @@ public class CSVRecord {
         }
     }
 
-
+    /**
+     * Returns the value at the specified column as a <code>short</code>.
+     * @param column The column name who's value should be returned.
+     * @return <code>short</code> value at the column.
+     */
     public short getShort(String column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
@@ -249,6 +371,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>short</code>.
+     * @param column The column index who's value should be returned.
+     * @return <code>short</code> value at the column.
+     */
     public short getShort(int column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
@@ -259,6 +386,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>byte</code>.
+     * @param column The column name who's value should be returned.
+     * @return <code>byte</code> value at the column.
+     */
     public byte getByte(String column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
@@ -269,6 +401,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>byte</code>.
+     * @param column The column index who's value should be returned.
+     * @return <code>byte</code> value at the column.
+     */
     public byte getByte(int column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
@@ -279,6 +416,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>boolean</code>.
+     * @param column The column name who's value should be returned.
+     * @return <code>boolean</code> value at the column.
+     */
     public boolean getBoolean(String column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
@@ -289,6 +431,11 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns the value at the specified column as a <code>boolean</code>.
+     * @param column The column index who's value should be returned.
+     * @return <code>boolean</code> value at the column.
+     */
     public boolean getBoolean(int column) {
         String obj = this.get(column);
         if (obj != null && obj.length() == 1) {
@@ -299,6 +446,12 @@ public class CSVRecord {
         }
     }
 
+    /**
+     * Returns a <code>String</code> representation of this <code>CSVRecord</code>, delimited by the <code>char</code>.
+     * value passed as argument.
+     * @param delimiter The delimiter to use in the representation.
+     * @return A <code>String</code> representation of this <code>CSVRecord</code>
+     */
     public String getRecordString(char delimiter) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < this.data.size(); i++){

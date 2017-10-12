@@ -42,7 +42,7 @@ public class CSVWriter {
         FileWriter fw = null;
         try {
             f = new File(dir);
-            if (f.isDirectory() && !f.exists()) f.mkdir();
+            if (f.isDirectory() && !f.exists()) f.mkdirs();
             fw = new FileWriter(filePath,append);
             fw.write(array.csvString(format));
         }
